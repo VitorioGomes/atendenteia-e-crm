@@ -1,0 +1,69 @@
+# Sobe o sistema numa VPS Ubuntu. E o unico caminho de instalacao.
+#
+#   ./instalar.sh             -> instala o Docker e sobe tudo (primeira vez)
+#   docker compose up -d      -> sobe
+#   docker compose logs -f app
+#   docker compose down       -> para (os dados ficam nos volumes)
+#
+# Desde 17/09/2026 sao dois servicos so: o app (que ja fala WhatsApp por dentro, pelo
+# Baileys, e guarda tudo num arquivo SQLite) e o Caddy. Sairam o Postgres e a Evolution.
+#
+# SEGURANCA - o CRM fica exposto na internet, entao:
+#   - o app NAO publica porta: quem fala com a internet e so o Caddy, nas portas 80 e 443;
+#   - o Caddy resolve o certificado HTTPS sozinho.
+# Nao adicione "ports:" em nenhum servico sem entender essas duas linhas.
+
+name: atendente-crm
+
+services:
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # O CRM e um arquivo SQLite dentro de ./dados, junto com a sessao do WhatsApp.
+      DATABASE_URL: file:../dados/crm.db
+      DOMINIO: ${DOMINIO:?defina DOMINIO no .env}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?defina ANTHROPIC_API_KEY no .env}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-claude-haiku-4-5}
+      TIMEZONE: ${TIMEZONE:-America/Sao_Paulo}
+      CRM_EMAIL: ${CRM_EMAIL:?defina CRM_EMAIL no .env}
+      CRM_PASSWORD: ${CRM_PASSWORD:?defina CRM_PASSWORD no .env}
+      SESSION_SECRET: ${SESSION_SECRET:?defina SESSION_SECRET no .env}
+    volumes:
+      # O banco do comprador. E o unico lugar com dado de cliente: copiar esta
+      # pasta e' o backup.
+      - ./dados:/app/dados
+      # A pasta do negocio fica montada: editar o conhecimento nao exige rebuild.
+      - ./negocio:/app/negocio:ro
+      # So leitura, e so para o 'doctor' conseguir avisar se o backup parou de rodar.
+      - ./backups:/app/backups:ro
+    networks: [interna]
+
+  caddy:
+    # Unico servico que fala com a internet. Cuida do HTTPS sozinho.
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      DOMINIO: ${DOMINIO}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [interna]
+
+networks:
+  interna:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

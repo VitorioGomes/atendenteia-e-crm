@@ -1,0 +1,16 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
+import { ProvedorConfirmacao } from "./confirmar";
+import "./estilos.css";
+
+const raiz = document.getElementById("raiz");
+if (!raiz) throw new Error("elemento #raiz nao encontrado");
+
+createRoot(raiz).render(
+  <StrictMode>
+    <ProvedorConfirmacao>
+      <App />
+    </ProvedorConfirmacao>
+  </StrictMode>,
+);

@@ -1,0 +1,6 @@
+# Scripts que rodam na VPS precisam de fim de linha LF. Com CRLF o Linux
+# responde "bad interpreter: No such file or directory" e ninguem entende o motivo.
+*.sh text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf

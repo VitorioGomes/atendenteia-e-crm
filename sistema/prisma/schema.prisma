@@ -1,0 +1,261 @@
+// Schema do CRM. As migrations rodam sozinhas no boot (npm start -> prisma migrate deploy),
+// o comprador nunca precisa rodar SQL.
+//
+// BANCO: SQLite (decisao de 16/09/2026). Motivo: o caminho padrao do produto e' o
+// computador do comprador, e nada pode exigir Docker nem instalacao de banco. Na VPS
+// tambem e' SQLite — um negocio, um processo, a escala cabe — e o backup vira copiar um
+// arquivo.
+//
+// Tres consequencias do SQLite que ficam visiveis aqui:
+//
+// 1. O Prisma NAO suporta `enum` no SQLite. Os estados viraram String. Os valores
+//    possiveis estao em src/lib/estados.ts, que e' quem garante o tipo no TypeScript.
+//    Ao mexer num estado, mude nos DOIS lugares.
+// 2. Nao existe lista de String. `tags` virou Json (um array de strings). Leia sempre com
+//    lerEtiquetas() de src/lib/estados.ts — Json cru pode vir nulo ou com lixo.
+//    Nenhuma coluna Json tem @default: o Prisma gera `DEFAULT []` sem aspas no SQLite, que
+//    e' SQL invalido e quebra a migration. Por isso elas sao anulaveis e quem le trata o nulo.
+// 3. Nao existe Decimal confiavel. Dinheiro e' guardado em CENTAVOS, num inteiro
+//    (`valueCents`). Float para dinheiro acumula erro de arredondamento.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Contatos e conversas
+// ---------------------------------------------------------------------------
+
+model Contact {
+  id       String  @id @default(cuid())
+  phone    String  @unique // sempre E.164 sem "+": 5511999999999
+  name     String?
+  pushName String? // nome que a pessoa usa no WhatsApp
+  email    String?
+  /// array de strings; ler com lerEtiquetas()
+  tags      Json?
+  fields    Json? // campos extras definidos em negocio.json
+  optOut    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversations Conversation[]
+  deals         Deal[]
+  appointments  Appointment[]
+
+  @@index([createdAt])
+}
+
+model Conversation {
+  id             String    @id @default(cuid())
+  contactId      String
+  contact        Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  /// ModoConversa: BOT (a IA responde) | HUMAN (humano assumiu, a IA fica calada) | CLOSED
+  mode           String    @default("BOT")
+  botPausedUntil DateTime? // pausa temporaria (ex.: dono respondeu pelo celular)
+  handoffReason  String?
+  lastInboundAt  DateTime?
+  lastOutboundAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  messages Message[]
+
+  @@index([contactId])
+  @@index([lastInboundAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  /// DirecaoMensagem: IN | OUT
+  direction      String
+  /// AutorMensagem: CONTACT | BOT | HUMAN | SYSTEM
+  author         String
+  /// TipoMensagem: TEXT | AUDIO | IMAGE | DOCUMENT | VIDEO | STICKER | LOCATION | CONTACT_CARD | UNKNOWN
+  kind           String       @default("TEXT")
+  text           String?
+  transcript     String? // audio transcrito
+  // Arquivo da mensagem (foto, audio, documento), em dados/midia/. So o nome do
+  // arquivo, nunca caminho absoluto: a pasta muda entre PC e VPS.
+  mediaPath      String?
+  mediaMime      String?
+  mediaName      String? // nome original, para o documento baixar com o nome certo
+  mediaSize      Int?
+  // id da mensagem no WhatsApp. Unico para nao processar a mesma mensagem duas vezes.
+  externalId     String?      @unique
+  raw            Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Funil
+// ---------------------------------------------------------------------------
+
+model Stage {
+  id       String  @id @default(cuid())
+  key      String  @unique // vem de negocio.json (ex.: "novo_lead")
+  name     String
+  position Int
+  isWon    Boolean @default(false)
+  isLost   Boolean @default(false)
+
+  deals Deal[]
+
+  @@index([position])
+}
+
+model Deal {
+  id        String  @id @default(cuid())
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  stageId   String
+  stage     Stage   @relation(fields: [stageId], references: [id])
+  title     String
+  /// StatusNegocio: OPEN | WON | LOST
+  status    String  @default("OPEN")
+  /// Dinheiro em CENTAVOS. R$ 1.800,00 = 180000.
+  valueCents Int?
+  // Resumo da conversa mantido pela IA — e o que o dono le antes de ligar pro lead.
+  summary    String?
+  nextStep   String?
+  nextStepAt DateTime?
+  lostReason String?
+  source     String?   @default("whatsapp")
+  fields     Json?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  events       DealEvent[]
+  appointments Appointment[]
+
+  @@index([stageId, updatedAt])
+  @@index([contactId])
+}
+
+model DealEvent {
+  id        String   @id @default(cuid())
+  dealId    String
+  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  type      String // stage_changed | note | summary | appointment | handoff | followup | comment
+  body      String
+  author    String   @default("ia") // ia | humano | sistema
+  createdAt DateTime @default(now())
+
+  @@index([dealId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Agenda
+// ---------------------------------------------------------------------------
+
+model Appointment {
+  id          String   @id @default(cuid())
+  contactId   String
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  dealId      String?
+  deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  service     String
+  scheduledAt DateTime
+  durationMin Int      @default(60)
+  /// StatusAgendamento: SCHEDULED | CONFIRMED | CANCELED | DONE | NOSHOW
+  status      String   @default("SCHEDULED")
+  notes       String?
+  /// quem marcou: "ia" ou "humano" — util para medir quanto a IA resolve sozinha
+  createdBy   String   @default("ia")
+  /// quando o lembrete foi enviado; nulo = ainda nao foi
+  remindedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([scheduledAt, status])
+  @@index([contactId, scheduledAt])
+}
+
+/// Periodo em que a agenda nao aceita marcacao: feriado, ferias, almoco,
+/// congresso, "quinta a tarde a doutora nao atende".
+///
+/// Sem isto o horario de funcionamento seria a unica regra, e ela vale para
+/// toda semana igual — a IA marcaria consulta no feriado de Natal.
+model ScheduleBlock {
+  id        String   @id @default(cuid())
+  startsAt  DateTime
+  endsAt    DateTime
+  reason    String?
+  createdBy String   @default("humano")
+  createdAt DateTime @default(now())
+
+  @@index([startsAt, endsAt])
+}
+
+// ---------------------------------------------------------------------------
+// Worker interno (sem Redis)
+// ---------------------------------------------------------------------------
+
+model Job {
+  id        String   @id @default(cuid())
+  type      String // followup | reminder | reengage
+  runAt     DateTime
+  payload   Json?
+  /// StatusJob: PENDING | RUNNING | DONE | FAILED | CANCELED
+  status    String   @default("PENDING")
+  attempts  Int      @default(0)
+  lastError String?
+  // Evita agendar dois follow-ups iguais pro mesmo lead.
+  dedupeKey String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, runAt])
+}
+
+// ---------------------------------------------------------------------------
+// Acesso ao CRM e estado interno
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         String   @default("owner")
+  /// Aparencia do CRM: claro | escuro | sistema (segue o computador)
+  theme        String   @default("sistema")
+  createdAt    DateTime @default(now())
+
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id // token opaco
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+/// Resposta rapida da caixa de entrada: digitar "/preco" vira o texto inteiro.
+/// Nasce do negocio.json (uma vez) ou da tela; depois disso, quem manda e o dono.
+model QuickReply {
+  id        String   @id @default(cuid())
+  shortcut  String   @unique // sem barra, minusculo, sem espaco: "preco", "endereco"
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

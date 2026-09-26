@@ -1,0 +1,43 @@
+# Porta de entrada do sistema. E o unico container que fala com a internet.
+#
+# O Caddy pede e renova o certificado HTTPS sozinho, de graca (Let's Encrypt).
+# Para isso o DOMINIO precisa apontar para o IP desta VPS - o instalar.sh cuida
+# disso usando <ip>.sslip.io quando o comprador nao tem dominio proprio.
+
+{
+	# E-mail usado pelo Let's Encrypt para avisar sobre o certificado.
+	email {$EMAIL_CERTIFICADO:admin@localhost}
+	# Sem servidor de admin: menos superficie exposta.
+	admin off
+}
+
+{$DOMINIO} {
+	encode gzip
+
+	# O CRM e a API vivem no mesmo lugar.
+	reverse_proxy app:3000 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	# Cabecalhos de seguranca basicos.
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "same-origin"
+		-Server
+	}
+
+	# Nao existe mais webhook (o WhatsApp entra por dentro do app), mas a regra
+	# fica: se alguem reintroduzir um, ele nasce fechado para a internet.
+	# e deixar aberto permitiria injetar mensagem falsa no CRM.
+	@webhook path /webhook/*
+	respond @webhook 404
+
+	log {
+		output file /data/acesso.log {
+			roll_size 10mb
+			roll_keep 3
+		}
+	}
+}

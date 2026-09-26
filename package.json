@@ -1,0 +1,12 @@
+{
+  "name": "atendente-crm-raiz",
+  "private": true,
+  "description": "Atalho: permite rodar os comandos a partir da pasta do projeto, sem entrar em sistema/.",
+  "scripts": {
+    "pc": "npm --prefix sistema run pc",
+    "doctor": "npm --prefix sistema run doctor:dev",
+    "limpar": "npm --prefix sistema run limpar --",
+    "mudar": "npm --prefix sistema run mudar",
+    "teste": "npm --prefix sistema run teste"
+  }
+}

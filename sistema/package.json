@@ -1,0 +1,42 @@
+{
+  "name": "atendente-crm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "pc": "node scripts/pc.mjs",
+    "limpar": "node scripts/limpar.mjs",
+    "mudar": "node scripts/mudar.mjs",
+    "dev": "tsx watch src/server.ts",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "start": "prisma migrate deploy && node dist/server.js",
+    "doctor": "node dist/doctor/index.js",
+    "doctor:dev": "tsx --env-file=.env src/doctor/index.ts",
+    "teste": "node --import tsx --test testes/*.teste.ts",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/static": "^10.1.5",
+    "@prisma/client": "^6.6.0",
+    "baileys": "^7.0.0-rc14",
+    "fastify": "^5.3.2",
+    "luxon": "^3.6.1",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.6.2",
+    "@types/node": "^22.14.1",
+    "@types/qrcode": "^1.5.6",
+    "pino-pretty": "^13.0.0",
+    "prisma": "^6.6.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}

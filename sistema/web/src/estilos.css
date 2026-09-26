@@ -1,0 +1,6256 @@
+/*
+  CRM — mundo visual "quadro verde" (24/09/2026, quarta direcao e vigente).
+
+  Direcao escolhida pelo dono a partir de uma referencia de quadro de demandas:
+  barra lateral verde, pagina clara (ou escura), colunas cinza-esverdeadas, cards
+  quase brancos, fonte Plus Jakarta Sans. Os valores vieram de uma especificacao
+  escrita pela IA que desenhou a referencia. Substitui a "superficie solida" com
+  navegacao escura e laranja (06/09/2026).
+
+  Regra dura deste arquivo, verificavel, que continua: NENHUM degrade e NENHUM
+  backdrop-filter. A referencia desfoca o fundo atras da janela aberta; aqui ele so
+  escurece.
+
+  Sistema de cor, com funcao definida:
+  - VERDE e a cor de acao: botao primario, foco, item ativo, selecao.
+  - LARANJA e alerta: alguem esperando resposta, conversa que precisa de voce,
+    atendimento que passou sem desfecho. So isso.
+  - AZUL e cor de dado (grafico, medidor). ROXO e progresso das colunas do funil.
+  - VERDE-VIVO e o que virou dinheiro ou foi concluido. VERMELHO e falha.
+  - O resto e tinta sobre cinza.
+*/
+
+:root {
+  /* Superficies, do fundo para a frente */
+  --fundo: #ffffff;
+  --coluna-fundo: #eceff0;
+  --branco: #fdfefe;
+  --cartao-hover: #ffffff;
+  --superficie-fria: #edf1f0;
+
+  /* Barra lateral verde. Item ativo e fundo branco com texto verde. */
+  --escuro: #0f7b67;
+  --escuro-alto: rgba(255, 255, 255, 0.1);
+  --escuro-ativo: #ffffff;
+  --escuro-ativo-texto: #0f7b67;
+  --escuro-texto: rgba(255, 255, 255, 0.78);
+  --escuro-texto-forte: #ffffff;
+
+  /* Tinta */
+  --tinta: #1a2322;
+  --tinta-media: #56625f;
+  --tinta-fraca: #8e9a97;
+
+  --linha: #e3e8e7;
+  --linha-forte: #d3dad9;
+  --linha-hover: #b9c4c1;
+  --borda-cartao: rgba(20, 40, 36, 0.08);
+
+  /* Acao: o verde */
+  --acao: #0f7b67;
+  --acao-hover: #0c6a58;
+  --acao-forte: #0c6a58;
+  --acao-suave: #e3f2ee;
+  --acao-suave-forte: #d2ebe4;
+  --acao-linha: #b5ddd3;
+  --acao-texto: #0c5a4b;
+  --foco: #7fd9c4;
+  --selecao: #cdebe3;
+
+  /* Alerta: alguem esperando */
+  --alerta: #d9621a;
+  --alerta-forte: #b04d10;
+  --alerta-suave: #fdf1e6;
+  --alerta-suave-forte: #fae2cd;
+  --alerta-linha: #f3c9a4;
+  --alerta-texto: #8f4610;
+
+  /* Dado e progresso */
+  --dado: #3e7bfa;
+  --dado-suave: #edf3ff;
+  --dado-linha: #bcd0fb;
+  --dado-forte: #1d4ed8;
+  --progresso: #7b61ff;
+  --progresso-suave: #f2efff;
+  --dado-suave-forte: #d6e3fe;
+
+  /* Cores das etiquetas, da especificacao da referencia. Valem nos dois temas: o
+     fundo e a cor a 24%, e o texto e a tinta de cada tema. */
+  --etq-vermelho: #e5484d;
+  --etq-laranja: #f07a1a;
+  --etq-amarelo: #e2b203;
+  --etq-verde: #2fa565;
+  --etq-petroleo: #12a594;
+  --etq-azul: #3e7bfa;
+  --etq-roxo: #8e4ec6;
+  --etq-rosa: #d6409f;
+
+  --verde: #1f9d55;
+  --verde-fundo: #e6f4ec;
+  --verde-linha: #a9d8bf;
+  --verde-texto: #13693a;
+  --verde-claro: #2fa565;
+  --verde-vivo: #1f9d55;
+
+  --vermelho: #e5484d;
+  --vermelho-fundo: #fce9e7;
+  --vermelho-linha: #f2b8b5;
+  --vermelho-texto: #c7362c;
+  --vermelho-forte: #c7362c;
+
+  --balao-saida: #e3f2ee;
+  --balao-saida-linha: #c7e5dd;
+  --esqueleto: #edf1f0;
+  --selecionado: #e3f2ee;
+  --rolagem: #c9d2d0;
+  --rolagem-forte: #aebab7;
+
+  --raio: 8px;
+  --raio-card: 8px;
+  --raio-painel: 12px;
+
+  --sombra-baixa: 0 1px 2px rgba(20, 40, 36, 0.08);
+  --sombra-media: 0 4px 14px rgba(20, 40, 36, 0.12);
+  --sombra-alta: 0 12px 32px rgba(20, 40, 36, 0.16), 0 2px 6px rgba(20, 40, 36, 0.08);
+  --sombra-arrasto: 0 14px 30px rgba(20, 40, 36, 0.22);
+
+  /* Movimento */
+  --rapido: 120ms;
+  --medio: 240ms;
+  --lento: 420ms;
+  --saida: cubic-bezier(0.16, 1, 0.3, 1);
+  --suave: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Escala tipografica, da especificacao da referencia. */
+  --texto-micro: 11.5px;
+  --texto-menor: 12.5px;
+  --texto-base: 14px;
+  --texto-medio: 15px;
+  --texto-titulo: 16px;
+  --texto-cabecalho: 18px;
+  --numero: 28px;
+  --numero-grande: 32px;
+}
+
+/* Plus Jakarta Sans (SIL OFL), servida pelo proprio sistema: nada de chamar o
+   Google a cada abertura do CRM. So o subconjunto latino, que cobre o portugues. */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fontes/plus-jakarta-sans-latin.woff2") format("woff2");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  color: var(--tinta);
+  background: var(--fundo);
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: var(--texto-base);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.valor,
+.valor-grande {
+  letter-spacing: -0.025em;
+}
+
+/* Superficies do navegador: selecao, cursor e barra de rolagem vem com o azul do
+   sistema operacional e nao pertencem a design nenhum. */
+
+::selection {
+  background: var(--selecao);
+  color: var(--tinta);
+}
+
+input,
+textarea {
+  caret-color: var(--acao);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rolagem) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--rolagem);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--rolagem-forte);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Dentro da barra verde a rolagem e branca translucida. */
+.lateral *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  background-clip: content-box;
+}
+
+a {
+  color: var(--acao-forte);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* ================================================================= MOVIMENTO
+   Uma gramatica so: tudo sobe um pouco e ganha nitidez, com saida exponencial.
+   Laco infinito existe em dois lugares e os dois sao estado do sistema: o
+   esqueleto de carregamento e o alarme de WhatsApp fora do ar. */
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes surgir-lateral {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes escurecer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ampliar {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulsar {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes bater {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.55);
+    opacity: 0.35;
+  }
+}
+
+@keyframes crescer {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.surge {
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ avatares */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  flex: 0 0 auto;
+  user-select: none;
+  box-shadow: inset 0 0 0 1px rgba(19, 23, 34, 0.07);
+}
+
+/* -------------------------------------------------------------------- icones */
+
+.icone {
+  flex: 0 0 auto;
+}
+
+.botao .icone,
+.lateral button .icone {
+  margin-right: 7px;
+  vertical-align: -3px;
+}
+
+.com-icone {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ================================================================== estrutura */
+
+.app {
+  display: grid;
+  grid-template-columns: 252px 1fr;
+  height: 100%;
+  gap: 0;
+}
+
+/* Barra lateral verde (24/09/2026). Itens de 40px com cantos de 10px; normal em
+   branco a 78%, hover com fundo branco a 10%, ativo com fundo branco e texto no
+   verde da barra. */
+.lateral {
+  background: var(--escuro);
+  padding: 18px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--escuro-texto);
+  overflow-y: auto;
+}
+
+.lateral .marca {
+  font-weight: 700;
+  color: var(--escuro-texto-forte);
+  font-size: var(--texto-medio);
+  padding: 2px 11px 18px;
+  line-height: 1.25;
+}
+
+.lateral .marca small {
+  display: block;
+  font-weight: 500;
+  font-size: var(--texto-menor);
+  color: var(--escuro-texto);
+  margin-top: 3px;
+}
+
+.lateral button {
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  min-height: 40px;
+  padding: 0 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  /* Botao encolhe ao conteudo por padrao: sem isto o fundo do hover fica cortado. */
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background var(--rapido) var(--suave),
+    color var(--rapido) var(--suave);
+}
+
+.lateral button .icone {
+  color: inherit;
+}
+
+.lateral button:hover {
+  background: var(--escuro-alto);
+  color: var(--escuro-texto-forte);
+}
+
+/* Ativo muda a superficie inteira: fundo branco, texto e icone no verde. Nada de
+   tarja colorida na lateral. */
+.lateral button[aria-current="true"],
+.lateral button[aria-current="true"]:hover {
+  background: var(--escuro-ativo);
+  color: var(--escuro-ativo-texto);
+  font-weight: 600;
+}
+
+.lateral button .contagem {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--texto-micro);
+  color: var(--escuro-texto);
+  font-weight: 600;
+}
+
+.lateral button[aria-current="true"] .contagem {
+  color: var(--escuro-ativo-texto);
+}
+
+.lateral button .contagem.urgente {
+  background: var(--alerta);
+  color: #fff;
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-weight: 700;
+}
+
+.lateral .rodape {
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: var(--texto-menor);
+}
+
+.lateral .estado-conexao {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  background: var(--escuro-alto);
+  font-size: var(--texto-menor);
+  color: var(--escuro-texto-forte);
+  width: 100%;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--rapido) var(--suave);
+}
+
+.lateral .estado-conexao:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.lateral .estado-conexao .sinal {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.lateral .estado-conexao.ligado .sinal {
+  background: #7ef0b4;
+}
+
+/* Alarme: o WhatsApp caiu e ninguem esta sendo atendido. Para de piscar assim
+   que reconecta. */
+.lateral .estado-conexao.desligado .sinal {
+  background: #ffb4ae;
+  animation: bater 1.8s var(--suave) infinite;
+}
+
+.lateral .estado-conexao.desligado {
+  background: rgba(120, 20, 20, 0.45);
+  color: #ffe1de;
+}
+
+.conteudo {
+  overflow: auto;
+  padding: 24px 26px 40px;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cabecalho h1 {
+  font-size: var(--texto-cabecalho);
+  margin: 0;
+  font-weight: 700;
+}
+
+.cabecalho p {
+  margin: 3px 0 0;
+  color: var(--tinta-fraca);
+}
+
+/* =================================================================== metricas */
+
+.metricas {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: stretch;
+}
+
+.metrica {
+  background: var(--branco);
+  border: 1px solid var(--borda-cartao);
+  box-shadow: var(--sombra-baixa);
+  border-radius: var(--raio-card);
+  padding: 15px 17px;
+  display: flex;
+  flex-direction: column;
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.metrica:nth-child(2) {
+  animation-delay: 50ms;
+}
+.metrica:nth-child(3) {
+  animation-delay: 100ms;
+}
+.metrica:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.metrica .titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+  font-weight: 500;
+}
+
+/* Icone colorido so na metrica que pede acao. Os outros tres sao contexto. */
+.metrica .titulo .icone {
+  color: var(--tinta-fraca);
+}
+
+.metrica .valor {
+  font-size: var(--numero);
+  font-weight: 600;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  margin-top: 9px;
+}
+
+.metrica .contexto {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+  margin-top: auto;
+  padding-top: 9px;
+}
+
+.metrica.principal {
+  padding: 17px 19px;
+}
+
+.metrica.principal .valor {
+  font-size: var(--numero-grande);
+}
+
+/* Alguem esperando: contorno laranja, como o card esperando no Funil. O cartao
+   inteiro laranja era alarme demais (mesma decisao do funil, 25/09/2026). */
+.metrica.principal.urgente {
+  border-color: var(--alerta);
+}
+
+.metrica.principal.urgente .titulo,
+.metrica.principal.urgente .titulo .icone,
+.metrica.principal.urgente .valor {
+  color: var(--alerta-forte);
+}
+
+.metrica.principal.urgente .contexto {
+  color: var(--tinta-fraca);
+}
+
+/* "Com voce" usa o azul do selo de quem atende: informacao, nao alerta. */
+.metrica.com-voce .titulo .icone {
+  color: var(--dado);
+}
+
+.metrica .acao {
+  margin-top: 11px;
+}
+
+/* ====================================================================== funil
+   Quadro no desenho da referencia escolhida pelo dono (24/09/2026): colunas de
+   290px alinhadas a esquerda, card com titulo, descricao e rodape de selos,
+   medidas e cores da especificacao que veio com a referencia. */
+
+.tela-funil {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  min-height: 480px;
+}
+
+.barra-funil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.barra-funil .barra-busca {
+  width: min(400px, 100%);
+  flex: 0 1 400px;
+}
+
+/* Busca em pilula, como na referencia. */
+.barra-funil .barra-busca input {
+  padding-top: 9px;
+  padding-bottom: 9px;
+  border-radius: 999px;
+}
+
+/* O filtro tem a cara do filtro de Conversas: mesmo controle, mesmo lugar logico. */
+.filtro-funil {
+  grid-template-columns: auto auto;
+}
+
+.filtro-funil button {
+  padding: 5px 12px;
+}
+
+/* Toda coluna vai ate o chao, como uma raia. Testado com a coluna crescendo so
+   ate o ultimo card (24/09): o dono achou estranho, o fundo cinza precisa ir ate
+   o fim em todas para o quadro ler como um quadro. */
+.funil {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+
+.coluna {
+  --estado: var(--progresso);
+  scroll-snap-align: start;
+  flex: 0 0 290px;
+  /* Sem isto a coluna alarga para caber o conteudo mais largo de um card. */
+  min-width: 0;
+  background: var(--coluna-fundo);
+  border: 1px solid transparent;
+  border-radius: var(--raio-painel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition:
+    background var(--medio) var(--suave),
+    border-color var(--medio) var(--suave),
+    transform var(--medio) var(--saida);
+}
+
+/* O icone diz onde a coluna esta no caminho: a primeira em cinza tracejado, as
+   seguintes enchendo em roxo, e o fim em verde (ganho) ou vermelho (perdido). */
+.coluna.inicio {
+  --estado: var(--tinta-fraca);
+}
+
+.coluna.ganho {
+  --estado: var(--verde);
+}
+
+.coluna.perdido {
+  --estado: var(--vermelho);
+}
+
+.coluna h2 {
+  font-size: var(--texto-base);
+  font-weight: 600;
+  color: var(--tinta);
+  margin: 0;
+  padding: 12px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.coluna h2 .icone-estagio {
+  color: var(--estado);
+  flex: 0 0 auto;
+}
+
+.coluna h2 .nome-coluna {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coluna h2 .contagem {
+  flex: 0 0 auto;
+  display: inline-block;
+  color: var(--tinta-media);
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 5px;
+  padding: 0 6px;
+  font-size: var(--texto-micro);
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* A coluna que recebeu confirma o numero novo. Sem isso o contador troca de
+   valor sem ninguem ver. */
+.coluna h2 .contagem.pulou {
+  animation: pular 460ms var(--suave) both;
+}
+
+@keyframes pular {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.coluna .lista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px 10px 12px;
+  /* A barra de rolagem so aparece com o ponteiro em cima: fixa, ela marcava a
+     coluna cheia como diferente das outras. */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.coluna .lista:hover {
+  scrollbar-color: var(--rolagem) transparent;
+}
+
+/* Alvo do arrasto: a coluna reage antes de soltar. */
+.coluna.alvo {
+  background: var(--acao-suave);
+  border-color: var(--acao-linha);
+}
+
+.cartao {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 140px;
+  background: var(--branco);
+  border: 1px solid var(--borda-cartao);
+  border-radius: var(--raio-card);
+  padding: 14px 16px;
+  cursor: grab;
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--sombra-baixa);
+  transition:
+    background var(--rapido) var(--suave),
+    box-shadow var(--rapido) var(--suave),
+    border-color var(--rapido) var(--suave);
+  animation: ampliar var(--medio) var(--saida) both;
+}
+
+/* Ja visto: entra sem animacao, senao a tela pisca a cada atualizacao. */
+.cartao.conhecido {
+  animation: none;
+}
+
+/* Pouso: o card que mudou de coluna chega continuando o gesto do arrasto —
+   inclinado e um pouco maior — e assenta. Vale tambem para quem moveu pelo
+   seletor do painel, que e o unico caminho no celular.
+
+   Vem depois de .conhecido de proposito: um card ja visto normalmente entra sem
+   animacao, mas este acabou de ser movido pela pessoa. Animacao aqui e resposta
+   a uma acao, nao decoracao. */
+.cartao.aterrissou {
+  animation: aterrissar 620ms var(--saida) both;
+  z-index: 1;
+}
+
+@keyframes aterrissar {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(1.05) rotate(-1.5deg);
+    box-shadow: var(--sombra-alta);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    box-shadow: var(--sombra-baixa);
+  }
+}
+
+/* O anel diz qual card e o que acabou de se mover. Numa coluna com 20 cards, o
+   olho perde o que mudou de lugar; ele apaga sozinho para nao virar estado. */
+.cartao.aterrissou::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--acao);
+  pointer-events: none;
+  animation: anel-some 900ms var(--saida) both;
+}
+
+@keyframes anel-some {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.cartao:hover {
+  background: var(--cartao-hover);
+  box-shadow: var(--sombra-media);
+}
+
+.cartao:active {
+  cursor: grabbing;
+}
+
+.cartao.arrastando {
+  opacity: 0.85;
+  transform: rotate(2deg);
+  box-shadow: var(--sombra-arrasto);
+}
+
+.cabeca-cartao {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.titulo-cartao {
+  min-width: 0;
+  font-size: var(--texto-base);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--tinta);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cartao .resumo {
+  margin: 6px 0 0;
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Rodape de selos: quem, estado, etiqueta, tempo. Fica no pe do card mesmo quando
+   o resumo e curto, como na referencia. */
+/* Rodape numa linha so, sempre: quebrando, o tempo descia para uma segunda linha
+   nos cards com estado, e cada card ficava de um jeito. Quem cede espaco e a
+   etiqueta, que encurta com reticencias; avatar, estado e tempo nao encolhem. */
+.rodape-cartao {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rodape-cartao > * {
+  flex: 0 0 auto;
+}
+
+.rodape-cartao > .tag.colorida {
+  flex: 0 1 auto;
+  min-width: 24px;
+}
+
+.rodape-cartao .etiqueta {
+  line-height: 18px;
+}
+
+/* Etiqueta cinza cheia, 11,5px, como na especificacao. */
+.cartao .tag {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+  border-radius: 5px;
+  padding: 0 7px;
+  font-size: var(--texto-micro);
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.tempo-cartao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.valor-cartao {
+  flex: 0 0 auto;
+  line-height: 1.35;
+  color: var(--verde-texto);
+  font-size: var(--texto-menor);
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Esperando resposta: contorno laranja e o selo, e so. Fundo e texto laranjas
+   transformavam o card inteiro em alarme. Sem tarja lateral grossa: e a regra
+   side-tab do detector, a marca mais reconhecivel de interface gerada. */
+.cartao.aguardando {
+  border-color: var(--alerta);
+}
+
+.cartao.humano {
+  border-color: var(--dado-linha);
+}
+
+.rodape-funil {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4px 0;
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .tela-funil {
+    height: auto;
+    min-height: 0;
+  }
+
+  .funil {
+    align-items: flex-start;
+  }
+
+  .coluna {
+    flex-basis: 84vw;
+  }
+}
+
+.vazio {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+  padding: 14px 6px;
+  text-align: center;
+}
+
+/* ================================================================== etiquetas */
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: var(--texto-micro);
+  font-weight: 500;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+  border: 1px solid var(--linha);
+}
+
+.etiqueta.com-ponto::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.etiqueta.alerta {
+  background: var(--branco);
+  border-color: var(--alerta-linha);
+  color: var(--alerta-forte);
+}
+
+.etiqueta.info {
+  background: var(--dado-suave);
+  border-color: var(--dado-linha);
+  color: var(--dado-forte);
+}
+
+.etiqueta.ok {
+  background: var(--verde-fundo);
+  border-color: var(--verde-linha);
+  color: var(--verde);
+}
+
+/* Etiqueta de conteudo nao e estado do sistema: plana, sem contorno, sem ponto,
+   em linha propria. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+  border: 0;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: var(--texto-micro);
+  line-height: 1.5;
+}
+
+
+.tag.escolha {
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 4px 10px;
+  font-size: var(--texto-menor);
+  transition:
+    background var(--rapido) var(--suave),
+    color var(--rapido) var(--suave);
+}
+
+.tag.escolha:hover {
+  background: var(--linha);
+}
+
+.tag.escolha[aria-pressed="true"] {
+  background: var(--acao-suave);
+  border-color: var(--acao-linha);
+  color: var(--acao-forte);
+  font-weight: 600;
+}
+
+/* ============================================================ painel do lead */
+
+.cortina {
+  position: fixed;
+  inset: 0;
+  /* Preto a 60%, como na referencia; sem o desfoque dela (backdrop-filter e proibido aqui). */
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 20;
+  animation: escurecer var(--medio) var(--suave) both;
+}
+
+.painel {
+  background: var(--branco);
+  width: min(690px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  box-shadow: var(--sombra-alta);
+  display: flex;
+  flex-direction: column;
+  animation: surgir-lateral var(--lento) var(--saida) both;
+}
+
+.painel .topo {
+  position: sticky;
+  top: 0;
+  background: var(--branco);
+  border-bottom: 1px solid var(--linha);
+  padding: 17px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  z-index: 2;
+}
+
+.painel .topo h2 {
+  margin: 0;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+}
+
+.painel .topo .identificacao {
+  margin: 3px 0 0;
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+.painel .corpo {
+  padding: 20px 22px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.secao {
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.secao:nth-child(2) {
+  animation-delay: 40ms;
+}
+.secao:nth-child(3) {
+  animation-delay: 80ms;
+}
+.secao:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+.secao h3 {
+  font-size: var(--texto-menor);
+  font-weight: 600;
+  color: var(--tinta-media);
+  margin: 0 0 9px;
+}
+
+.ficha {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 7px 12px;
+  font-size: var(--texto-base);
+  margin: 0;
+}
+
+.ficha dt {
+  color: var(--tinta-fraca);
+}
+
+.ficha dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.caixa {
+  background: var(--superficie-fria);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 13px 15px;
+}
+
+.caixa.resumo-ia {
+  background: var(--branco);
+  border-color: var(--linha-forte);
+  font-size: var(--texto-medio);
+  line-height: 1.55;
+  padding: 15px 17px;
+}
+
+.caixa .proximo-passo {
+  margin-top: 9px;
+  font-weight: 600;
+}
+
+/* =================================================================== conversa */
+
+.conversa {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--superficie-fria);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  padding: 15px;
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+.balao {
+  max-width: 78%;
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-size: var(--texto-base);
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.balao .assinatura {
+  display: block;
+  font-size: var(--texto-micro);
+  margin-top: 4px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.balao .marca-audio {
+  display: block;
+  font-size: var(--texto-micro);
+  opacity: 0.65;
+  margin-bottom: 2px;
+}
+
+.balao.entrada {
+  align-self: flex-start;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-bottom-left-radius: 4px;
+}
+
+.balao.saida {
+  align-self: flex-end;
+  background: var(--balao-saida);
+  border: 1px solid var(--balao-saida-linha);
+  border-bottom-right-radius: 4px;
+}
+
+.balao.humana {
+  background: var(--verde-fundo);
+  border-color: var(--verde-linha);
+}
+
+.responder {
+  display: flex;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.responder textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 60px;
+  padding: 10px 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.responder textarea:focus {
+  border-color: var(--acao);
+}
+
+/* ===================================================================== botoes */
+
+.botao {
+  background: var(--acao);
+  color: #fff;
+  border: 1px solid var(--acao);
+  border-radius: var(--raio);
+  padding: 9px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    background var(--rapido) var(--suave),
+    transform var(--rapido) var(--saida),
+    box-shadow var(--rapido) var(--saida);
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--acao-hover);
+  border-color: var(--acao-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--sombra-media);
+}
+
+/* Resposta ao toque: o botao afunda no clique. */
+.botao:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+  box-shadow: none;
+}
+
+/* Desativado nao e "a cor primaria mais clara": e cinza, sem promessa de acao. */
+.botao:disabled {
+  background: var(--superficie-fria);
+  border-color: var(--linha);
+  color: var(--tinta-fraca);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.botao.secundario:disabled,
+.botao.discreto:disabled {
+  background: none;
+  color: var(--tinta-fraca);
+}
+
+.botao.secundario {
+  background: var(--branco);
+  color: var(--tinta);
+  border-color: var(--linha-forte);
+}
+
+.botao.secundario:hover:not(:disabled) {
+  background: var(--superficie-fria);
+  border-color: var(--linha-hover);
+}
+
+.botao.discreto {
+  background: none;
+  border-color: transparent;
+  color: var(--tinta-media);
+  font-weight: 500;
+  padding: 6px 9px;
+}
+
+.botao.discreto:hover:not(:disabled) {
+  background: var(--superficie-fria);
+  color: var(--tinta);
+  transform: none;
+  box-shadow: none;
+}
+
+.botao.discreto.perigoso {
+  color: var(--vermelho);
+}
+
+.botao.discreto.perigoso:hover:not(:disabled) {
+  background: var(--vermelho-fundo);
+}
+
+.acoes {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+select.campo,
+input.campo {
+  padding: 8px 10px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+select.campo:hover,
+input.campo:hover {
+  border-color: var(--linha-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--acao);
+  outline-offset: 2px;
+}
+
+.lateral :focus-visible {
+  outline-color: var(--foco);
+}
+
+/* ====================================================================== login */
+
+.login {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--fundo);
+}
+
+.login form {
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  padding: 32px 30px;
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: var(--sombra-media);
+  animation: ampliar var(--lento) var(--saida) both;
+}
+
+.login h1 {
+  margin: 0;
+  font-size: var(--texto-cabecalho);
+  font-weight: 600;
+}
+
+.login label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.login input {
+  padding: 11px 13px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  font-size: var(--texto-medio);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.login input:focus {
+  border-color: var(--acao);
+}
+
+/* ===================================================================== avisos */
+
+.aviso {
+  border-radius: var(--raio-card);
+  padding: 12px 15px;
+  font-size: var(--texto-base);
+  border: 1px solid;
+  margin-bottom: 16px;
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.aviso.erro {
+  background: var(--vermelho-fundo);
+  border-color: var(--vermelho-linha);
+  color: var(--vermelho-texto);
+}
+
+.aviso.atencao {
+  background: var(--alerta-suave);
+  border-color: var(--alerta-linha);
+  color: var(--alerta-texto);
+}
+
+.aviso.ok {
+  background: var(--verde-fundo);
+  border-color: var(--verde-linha);
+  color: var(--verde-texto);
+}
+
+/* ==================================================================== conexao */
+
+.conexao {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.qrcode {
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  padding: 20px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  text-align: center;
+  box-shadow: var(--sombra-baixa);
+  animation: ampliar var(--medio) var(--saida) both;
+}
+
+.qrcode img {
+  width: 100%;
+  max-width: 300px;
+  image-rendering: pixelated;
+  border-radius: var(--raio);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.qr-legenda {
+  margin: 10px 0 0;
+  font-size: var(--texto-menor);
+  color: var(--tinta-fraca);
+}
+
+.qr-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 260px;
+}
+
+.qr-vazio p {
+  margin: 0;
+  color: var(--tinta-media);
+}
+
+.qr-esqueleto {
+  width: 220px;
+  height: 220px;
+  border-radius: var(--raio);
+}
+
+.conexao-instrucoes {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 6px;
+}
+
+.conexao-instrucoes h2 {
+  margin: 0;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+}
+
+.passos {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--tinta-media);
+  line-height: 1.5;
+}
+
+.passos strong {
+  color: var(--tinta);
+}
+
+/* Conectado: o número é o protagonista. */
+.conexao-ativa {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 920px;
+}
+
+.cartao-numero {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 26px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.numero-foto {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.numero-foto img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ponto-vivo {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--verde-vivo);
+  border: 3px solid var(--branco);
+}
+
+.numero-dados {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.selo-conectado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding: 2px 9px 2px 8px;
+  border-radius: 20px;
+  background: var(--verde-fundo);
+  color: var(--verde);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+}
+
+.selo-conectado::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--verde);
+}
+
+.numero-telefone {
+  white-space: nowrap;
+  font-size: var(--numero);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.numero-nome {
+  font-size: var(--texto-medio);
+  color: var(--tinta-media);
+}
+
+.numero-desde {
+  font-size: var(--texto-menor);
+  color: var(--tinta-fraca);
+}
+
+.atividade-conexao {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.atividade-conexao > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.atividade-conexao > div:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.atividade-conexao > div:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.rotulo-atividade {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.atividade-conexao strong {
+  font-size: var(--numero);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.atividade-conexao strong.texto {
+  font-size: var(--texto-titulo);
+  line-height: 1.6;
+}
+
+@media (max-width: 860px) {
+  .cartao-numero {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .cartao-numero .botao {
+    margin-left: -9px;
+  }
+
+  .numero-telefone {
+    font-size: var(--texto-titulo);
+  }
+
+  .numero-dados {
+    flex-basis: calc(100% - 94px);
+  }
+
+  /* Três números lado a lado, compactos: empilhados, eles empurram tudo para baixo. */
+  .atividade-conexao {
+    gap: 8px;
+  }
+
+  .atividade-conexao > div {
+    padding: 12px;
+  }
+
+  .rotulo-atividade {
+    font-size: var(--texto-micro);
+  }
+
+  .atividade-conexao strong {
+    font-size: var(--texto-cabecalho);
+  }
+
+  .atividade-conexao strong.texto {
+    font-size: var(--texto-base);
+    line-height: 1.4;
+  }
+}
+
+/* ===================================================================== agenda */
+
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compromisso {
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  padding: 13px 16px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  transition:
+    transform var(--rapido) var(--saida),
+    box-shadow var(--rapido) var(--saida),
+    border-color var(--rapido) var(--suave);
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.compromisso:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--linha-forte);
+}
+
+.compromisso .quando {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 62px;
+  font-size: var(--texto-medio);
+}
+
+.compromisso .duracao {
+  display: block;
+  color: var(--tinta-fraca);
+  font-size: var(--texto-micro);
+  font-weight: 400;
+}
+
+.compromisso .pessoa {
+  flex: 1;
+  min-width: 170px;
+}
+
+.compromisso .detalhe {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+.compromisso .telefone {
+  font-variant-numeric: tabular-nums;
+}
+
+.dia-titulo {
+  margin: 24px 0 9px;
+  font-size: var(--texto-base);
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+/* ====================================================================== modal */
+
+.cortina.centralizada {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.janela {
+  background: var(--branco);
+  border-radius: var(--raio-painel);
+  box-shadow: var(--sombra-alta);
+  width: min(510px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: ampliar var(--medio) var(--saida) both;
+}
+
+.janela .topo {
+  position: sticky;
+  top: 0;
+  background: var(--branco);
+  border-bottom: 1px solid var(--linha);
+  padding: 15px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.janela .topo h2 {
+  margin: 0;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+}
+
+.janela .corpo {
+  padding: 20px 22px 24px;
+}
+
+/* ================================================================= formulario */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formulario-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.formulario label,
+.formulario-linha label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.formulario-linha label {
+  flex: 1 1 165px;
+}
+
+.formulario input,
+.formulario select,
+.formulario-linha input {
+  padding: 10px 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  font-size: var(--texto-base);
+  color: var(--tinta);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.formulario input:focus,
+.formulario select:focus,
+.formulario-linha input:focus {
+  border-color: var(--acao);
+}
+
+.formulario small {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+/* ==================================================================== tabela */
+
+.barra-busca {
+  margin-bottom: 15px;
+  position: relative;
+  width: min(420px, 100%);
+}
+
+.barra-busca .icone {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--tinta-fraca);
+  pointer-events: none;
+}
+
+.barra-busca input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.barra-busca input::placeholder {
+  color: var(--tinta-fraca);
+}
+
+.barra-busca input:focus {
+  border-color: var(--acao);
+}
+
+.tabela-rolagem {
+  overflow-x: auto;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-base);
+}
+
+.tabela th {
+  text-align: left;
+  font-size: var(--texto-menor);
+  font-weight: 600;
+  color: var(--tinta-media);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linha);
+  white-space: nowrap;
+  background: var(--superficie-fria);
+}
+
+.tabela td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linha);
+  vertical-align: middle;
+}
+
+.tabela tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela tbody tr {
+  transition: background var(--rapido) var(--suave);
+}
+
+.tabela tbody tr:hover {
+  background: var(--superficie-fria);
+}
+
+.tabela .numero {
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela .pessoa-celula {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.tabela .pessoa-celula .nome {
+  font-weight: 600;
+}
+
+.tabela .pessoa-celula .secundario {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+.paginacao {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===================================================================== painel */
+
+.painel-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.bloco {
+  background: var(--branco);
+  border: 1px solid var(--borda-cartao);
+  box-shadow: var(--sombra-baixa);
+  border-radius: var(--raio-painel);
+  padding: 18px 20px 20px;
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.bloco:nth-child(2) {
+  animation-delay: 60ms;
+}
+.bloco:nth-child(3) {
+  animation-delay: 120ms;
+}
+.bloco:nth-child(4) {
+  animation-delay: 180ms;
+}
+.bloco:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.bloco.largo {
+  grid-column: 1 / -1;
+  padding: 22px 24px 24px;
+}
+
+.bloco h3 {
+  margin: 0 0 13px;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+}
+
+.bloco .nota {
+  margin: -9px 0 13px;
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+.bloco .nota.alerta {
+  color: var(--alerta-forte);
+}
+
+.destaque-lado {
+  display: flex;
+  gap: 28px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Sem degrade em texto: enfase vem de peso e tamanho. */
+.valor-grande {
+  font-size: var(--numero-grande);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+
+.valor-grande .unidade {
+  font-size: var(--texto-cabecalho);
+  color: var(--tinta-fraca);
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+.medidor {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--superficie-fria);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+/* Anima transform, nunca width: largura animada forca recalculo de layout a
+   cada quadro e engasga. */
+.medidor .preenchimento {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: var(--dado);
+  border-radius: 4px;
+  transition: transform var(--lento) var(--saida);
+}
+
+/* grafico de barras, sem biblioteca */
+
+.grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 136px;
+}
+
+.barra-coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+}
+
+.barra-coluna .contagem {
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  height: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.barra-coluna .barra {
+  width: 100%;
+  min-height: 3px;
+  background: var(--dado);
+  border-radius: 4px 4px 2px 2px;
+  transform-origin: bottom;
+  animation: crescer var(--lento) var(--saida) both;
+  transition: background var(--rapido) var(--suave);
+}
+
+.barra-coluna:hover .barra {
+  background: var(--dado-forte);
+}
+
+.barra-coluna .rotulo-dia {
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  margin-top: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* funil resumido */
+
+.linha-funil {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 7px;
+  font-size: var(--texto-menor);
+}
+
+.linha-funil .nome {
+  flex: 0 0 118px;
+  color: var(--tinta-media);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linha-funil .trilho {
+  flex: 1;
+  height: 16px;
+  background: var(--superficie-fria);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.linha-funil .preenchimento {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: var(--dado);
+  border-radius: 5px;
+  transition: transform var(--lento) var(--saida);
+}
+
+.linha-funil .preenchimento.ganho {
+  background: var(--verde-claro);
+}
+
+.linha-funil .preenchimento.perdido {
+  background: var(--linha-forte);
+}
+
+.linha-funil .quantidade {
+  flex: 0 0 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ================================================================== esqueleto
+   Carregando nao e a palavra "Carregando": e a forma do que vai chegar. */
+
+.esqueleto {
+  border-radius: var(--raio-card);
+  background: var(--esqueleto);
+  animation: pulsar 1.5s var(--suave) infinite;
+}
+
+.esqueleto-cartao {
+  height: 108px;
+}
+
+.esqueleto-metrica {
+  height: 104px;
+}
+
+/* ============================================================ telas pequenas */
+
+@media (max-width: 980px) {
+  .metricas {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .painel-grade {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  /* No celular a barra vira uma fila de icones no pe da tela, como na referencia:
+     e onde o polegar alcanca. */
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .conteudo {
+    grid-row: 1;
+  }
+
+  .lateral {
+    grid-row: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  }
+
+  .lateral .marca,
+  .lateral .rodape,
+  .lateral .rotulo {
+    display: none;
+  }
+
+  .lateral button {
+    position: relative;
+    flex: 1 1 0;
+    width: auto;
+    justify-content: center;
+  }
+
+  .lateral button .com-icone {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .lateral button .contagem {
+    display: none;
+  }
+
+  .lateral button .contagem.urgente {
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: calc(50% + 4px);
+    min-width: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .conteudo {
+    padding: 18px 14px 36px;
+  }
+
+  .coluna {
+    max-height: none;
+  }
+
+  .conexao {
+    grid-template-columns: 1fr;
+  }
+
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .ficha dd {
+    margin-bottom: 9px;
+  }
+}
+
+/* ========================================================== caixa de entrada
+   Duas colunas: a lista de conversas e a conversa aberta. No celular vira uma
+   tela so, e o botao Voltar aparece. Superficies chapadas, como o resto do CRM:
+   a linha aberta e a linha que precisa de voce mudam a superficie inteira, nunca
+   ganham tarja lateral. */
+
+.caixa-entrada {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 14px;
+  height: calc(100vh - 64px);
+  min-height: 460px;
+}
+
+.lista-conversas,
+.conversa-aberta {
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lista-topo {
+  padding: 16px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.lista-topo h1 {
+  margin: 0;
+  font-size: var(--texto-cabecalho);
+  font-weight: 600;
+}
+
+/* Alternador de duas opcoes: um controle, nao dois botoes soltos. */
+.alternador {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 3px;
+  background: var(--superficie-fria);
+  border-radius: var(--raio);
+}
+
+.alternador button {
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 8px;
+  font-size: var(--texto-menor);
+  font-weight: 500;
+  color: var(--tinta-media);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    background var(--rapido) var(--suave),
+    color var(--rapido) var(--suave);
+}
+
+.alternador button[aria-selected="true"] {
+  background: var(--branco);
+  color: var(--tinta);
+  font-weight: 600;
+  box-shadow: var(--sombra-baixa);
+}
+
+.alternador .contagem {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--texto-micro);
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 0 6px;
+  background: var(--alerta);
+  color: #fff;
+}
+
+.barra-busca.compacta {
+  margin: 0;
+  width: 100%;
+  display: block;
+}
+
+.linhas {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.linha-conversa {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  width: 100%;
+  padding: 11px 14px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--linha);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--rapido) var(--suave);
+}
+
+.linha-conversa:hover {
+  background: var(--superficie-fria);
+}
+
+.linha-conversa.ativa {
+  background: var(--selecionado);
+}
+
+.linha-conversa.precisa {
+  background: var(--alerta-suave);
+}
+
+.linha-conversa.precisa.ativa {
+  background: var(--alerta-suave-forte);
+}
+
+.linha-conversa .meio {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.linha-conversa .primeira,
+.linha-conversa .segunda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.linha-conversa .nome {
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linha-conversa time {
+  flex: 0 0 auto;
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+.linha-conversa.precisa time {
+  color: var(--alerta-forte);
+  font-weight: 600;
+}
+
+.linha-conversa .previa {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linha-conversa.precisa .previa {
+  color: var(--alerta-texto);
+}
+
+.linha-conversa .etiqueta {
+  flex: 0 0 auto;
+}
+
+.esqueleto-linha {
+  height: 50px;
+  margin: 10px 14px;
+}
+
+/* ---------------------------------------------------------- conversa aberta */
+
+.sem-conversa {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--tinta-fraca);
+  padding: 24px;
+  text-align: center;
+}
+
+.aberta-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.aberta-topo .voltar {
+  display: none;
+}
+
+.aberta-topo .quem {
+  flex: 1;
+  min-width: 0;
+}
+
+.aberta-topo h2 {
+  margin: 0;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aberta-topo p {
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-fraca);
+}
+
+.aberta-topo .telefone {
+  font-variant-numeric: tabular-nums;
+}
+
+.aberta-topo .acoes {
+  flex: 0 0 auto;
+}
+
+.conversa-aberta .aviso.faixa {
+  margin: 12px 16px 0;
+}
+
+.conversa-aberta .aviso.faixa .motivo {
+  display: block;
+  margin-top: 3px;
+}
+
+.resumo-da-ia {
+  padding: 10px 16px 12px;
+  border-bottom: 1px solid var(--linha);
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+  line-height: 1.5;
+}
+
+.resumo-da-ia .rotulo {
+  display: block;
+  font-weight: 600;
+  color: var(--tinta);
+  margin-bottom: 2px;
+}
+
+.resumo-da-ia .proximo {
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.mensagens {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--superficie-fria);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mensagens .esperando {
+  align-self: flex-start;
+  margin: 2px 0 0;
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--alerta-forte);
+}
+
+/* A conversa aberta inteira aceita arquivo arrastado, então ela é o palco. */
+.aberta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.soltar-aqui {
+  position: absolute;
+  inset: 8px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: var(--acao-suave);
+  border: 2px dashed var(--acao);
+  border-radius: var(--raio-painel);
+  pointer-events: none;
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.soltar-aqui p {
+  margin: 0;
+  font-size: var(--texto-medio);
+  font-weight: 600;
+  color: var(--acao-forte);
+}
+
+.separador-dia {
+  align-self: center;
+  margin: 8px 0 2px;
+}
+
+.separador-dia span {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta-media);
+}
+
+/* ------------------------------------------------------------- compositor */
+
+.compositor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--linha);
+  background: var(--branco);
+}
+
+.linha-compositor {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.compositor textarea {
+  flex: 1;
+  resize: none;
+  min-height: 42px;
+  max-height: 160px;
+  margin: 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  line-height: 1.45;
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.compositor textarea:focus {
+  border-color: var(--acao);
+  outline: none;
+}
+
+.botao-icone {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 42px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--raio);
+  color: var(--tinta-media);
+  cursor: pointer;
+  transition:
+    background var(--rapido) var(--suave),
+    color var(--rapido) var(--suave);
+}
+
+.botao-icone:hover:not(:disabled),
+.botao-icone.ativo {
+  background: var(--superficie-fria);
+  color: var(--tinta);
+}
+
+.botao-icone:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.botao-icone.perigoso {
+  color: var(--vermelho);
+}
+
+.botao-icone.perigoso:hover:not(:disabled) {
+  background: var(--vermelho-fundo);
+  color: var(--vermelho);
+}
+
+/* O botão da direita muda de função (microfone / enviar), nunca de lugar. */
+.botao-redondo {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--acao);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background var(--rapido) var(--suave),
+    transform var(--rapido) var(--saida);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.botao-redondo:hover:not(:disabled) {
+  background: var(--acao-hover);
+}
+
+.botao-redondo:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.botao-redondo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Gravando: a linha inteira vira o gravador. */
+.gravacao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: 42px;
+  margin: 0 4px;
+  padding: 0 12px;
+  background: var(--acao-suave);
+  border: 1px solid var(--acao-linha);
+  border-radius: var(--raio);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.ponto-gravando {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--acao);
+  flex: 0 0 auto;
+}
+
+.tempo-gravacao {
+  font-size: var(--texto-base);
+  font-weight: 600;
+  color: var(--acao-forte);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.barras-ao-vivo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  height: 24px;
+  overflow: hidden;
+}
+
+.barras-ao-vivo span {
+  flex: 0 0 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--acao);
+  transform-origin: center;
+  transition: transform 80ms linear;
+}
+
+/* Arquivos escolhidos, antes de enviar. */
+.anexos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.anexo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 250px;
+  padding: 5px 6px 5px 5px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--branco);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.anexo img,
+.anexo-icone {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.anexo-icone {
+  display: grid;
+  place-items: center;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+}
+
+.anexo-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.anexo-textos .nome {
+  font-size: var(--texto-menor);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anexo-textos .detalhe {
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+.anexo .remover {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--tinta-fraca);
+  cursor: pointer;
+}
+
+.anexo .remover:hover {
+  background: var(--superficie-fria);
+  color: var(--tinta);
+}
+
+/* Menu do clipe e seletor de emoji: sobem a partir da barra. */
+.menu-anexo,
+.seletor-emoji {
+  position: absolute;
+  bottom: calc(100% - 4px);
+  z-index: 10;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  box-shadow: var(--sombra-media);
+  animation: surgir var(--rapido) var(--saida) both;
+}
+
+.menu-anexo {
+  left: 52px;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 6px;
+  border-radius: var(--raio-card);
+}
+
+.menu-anexo button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-radius: var(--raio);
+  color: var(--tinta);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-anexo button svg {
+  color: var(--tinta-media);
+}
+
+.menu-anexo button:hover {
+  background: var(--superficie-fria);
+}
+
+.seletor-emoji {
+  left: 12px;
+  width: 344px;
+  max-width: calc(100% - 24px);
+  height: 300px;
+  overflow-y: auto;
+  padding: 0 8px 8px;
+  border-radius: var(--raio-painel);
+  overscroll-behavior: contain;
+}
+
+.seletor-emoji h3 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 10px 4px 6px;
+  background: var(--branco);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta-fraca);
+}
+
+.grade-emoji {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+}
+
+.grade-emoji button {
+  height: 36px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--raio);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--rapido) var(--saida);
+}
+
+.grade-emoji button:hover {
+  background: var(--superficie-fria);
+  transform: scale(1.12);
+}
+
+/* ------------------------------------------------------- mídia no balão */
+
+.balao .texto {
+  display: block;
+}
+
+.balao.com-midia {
+  padding: 5px;
+}
+
+.balao.com-midia .texto,
+.balao.com-midia .transcricao,
+.balao.com-midia .assinatura {
+  padding: 0 7px;
+}
+
+.balao.com-midia .texto {
+  margin-top: 6px;
+}
+
+.balao.com-midia .assinatura {
+  padding-bottom: 3px;
+}
+
+.balao.figurinha {
+  background: none;
+  border-color: transparent;
+  padding: 0;
+}
+
+.midia-foto {
+  display: block;
+  max-width: min(280px, 100%);
+  max-height: 320px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--superficie-fria);
+}
+
+.midia-figurinha {
+  display: block;
+  width: 130px;
+  height: auto;
+}
+
+.midia-video {
+  display: block;
+  max-width: min(300px, 100%);
+  max-height: 320px;
+  border-radius: 10px;
+  /* Preto, nao a cor da barra lateral: o video nao e navegacao. */
+  background: #000;
+}
+
+.midia-ausente {
+  display: block;
+  padding: 6px 7px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.player-audio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 270px;
+  max-width: 100%;
+  padding: 4px 6px 2px 2px;
+}
+
+.player-audio .tocar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--tinta);
+  color: var(--fundo);
+  cursor: pointer;
+  transition: transform var(--rapido) var(--saida);
+}
+
+.player-audio .tocar:active {
+  transform: scale(0.92);
+}
+
+.player-audio .trilha {
+  position: relative;
+  flex: 1;
+  height: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.player-audio .trilha::before,
+.player-audio .preenchido {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.player-audio .trilha::before {
+  background: var(--linha-forte);
+}
+
+.player-audio .preenchido {
+  background: var(--tinta);
+  transform-origin: left center;
+}
+
+.player-audio .cabeca {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--tinta);
+}
+
+.player-audio .trilha input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.player-audio .trilha:has(input:focus-visible) .cabeca {
+  box-shadow: 0 0 0 3px var(--acao-linha);
+}
+
+.player-audio .tempo {
+  min-width: 32px;
+  font-size: var(--texto-micro);
+  color: var(--tinta-media);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-audio .velocidade {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border: none;
+  border-radius: var(--raio);
+  background: var(--tinta-media);
+  color: var(--fundo);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.balao .transcricao {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.balao .transcricao .rotulo {
+  display: block;
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.midia-documento {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 290px;
+  max-width: 100%;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+}
+
+.midia-documento .abrir {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 4px 10px 10px;
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.midia-documento .icone {
+  flex: 0 0 auto;
+  color: var(--tinta-media);
+}
+
+.midia-documento .textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.midia-documento .nome {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.midia-documento .abrir:hover .nome {
+  text-decoration: underline;
+}
+
+.midia-documento .detalhe {
+  display: flex;
+  gap: 8px;
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+.midia-documento .baixar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-right: 4px;
+  border-radius: var(--raio);
+  color: var(--tinta-media);
+}
+
+.midia-documento .baixar:hover {
+  background: var(--superficie-fria);
+  color: var(--tinta);
+}
+
+@media (max-width: 860px) {
+  .caixa-entrada {
+    grid-template-columns: minmax(0, 1fr);
+    height: calc(100vh - 110px);
+  }
+
+  .caixa-entrada.com-aberta .lista-conversas,
+  .caixa-entrada:not(.com-aberta) .conversa-aberta {
+    display: none;
+  }
+
+  .aberta-topo .voltar {
+    display: inline-flex;
+  }
+
+  .aberta-topo {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 10px 12px;
+  }
+
+  /* Nome e telefone ficam numa linha; as ações descem para a linha de baixo. */
+  .aberta-topo .acoes {
+    flex-basis: 100%;
+  }
+
+  .aberta-topo .acoes .botao {
+    flex: 1;
+  }
+
+  .aberta-topo p {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* No celular a tela é da conversa: o resumo fica em três linhas. */
+  .resumo-da-ia {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    padding: 8px 12px;
+  }
+
+  .conversa-aberta .aviso.faixa {
+    margin: 8px 12px 0;
+  }
+
+  .seletor-emoji {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+
+  .menu-anexo {
+    left: 8px;
+  }
+
+  .compositor {
+    padding: 8px;
+  }
+
+  .botao-icone {
+    width: 36px;
+  }
+}
+
+/* ================================================== respostas rápidas */
+
+.menu-respostas {
+  position: absolute;
+  bottom: calc(100% - 4px);
+  left: 12px;
+  z-index: 10;
+  width: 440px;
+  max-width: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  box-shadow: var(--sombra-media);
+  animation: surgir var(--rapido) var(--saida) both;
+}
+
+.menu-respostas ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: 264px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu-respostas li button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: var(--raio);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-respostas li[aria-selected="true"] button {
+  background: var(--superficie-fria);
+}
+
+.menu-respostas .atalho {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.menu-respostas .previa {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.menu-respostas .vazio {
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.rodape-menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px 4px 14px;
+  border-top: 1px solid var(--linha);
+}
+
+.rodape-menu .dica {
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 18px;
+  margin-right: 2px;
+  padding: 0 4px;
+  border: 1px solid var(--linha-forte);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--branco);
+  font: inherit;
+  font-size: var(--texto-micro);
+  text-align: center;
+  color: var(--tinta-media);
+}
+
+.gerenciar-respostas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.gerenciar-respostas > .botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lista-respostas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-top: 1px solid var(--linha);
+}
+
+.lista-respostas li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--linha);
+}
+
+.lista-respostas .resposta-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.lista-respostas .atalho {
+  font-weight: 600;
+}
+
+.lista-respostas p {
+  margin: 2px 0 0;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+  white-space: pre-wrap;
+}
+
+.acoes-resposta {
+  display: flex;
+  gap: 2px;
+}
+
+.acoes-resposta .botao-icone {
+  width: 34px;
+  height: 34px;
+}
+
+.formulario-resposta {
+  width: 100%;
+}
+
+.campo-atalho {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--tinta-media);
+}
+
+.campo-atalho .campo {
+  flex: 1;
+}
+
+.formulario-resposta .ajuda {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--texto-micro);
+  font-weight: 400;
+  color: var(--tinta-fraca);
+}
+
+/* ============================================================ agenda */
+
+.barra-agenda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 18px 0 4px;
+}
+
+.barra-agenda .alternador {
+  flex: 0 1 auto;
+}
+
+.barra-agenda .barra-busca {
+  flex: 0 1 300px;
+}
+
+.agenda-vazia {
+  margin-top: 20px;
+  max-width: 620px;
+}
+
+.compromisso .observacao {
+  margin-top: 4px;
+  font-size: var(--texto-menor);
+}
+
+/* Passou e ninguém disse se a pessoa veio: pede ação, então muda a superfície
+   inteira (nunca uma tarja lateral). */
+.compromisso.sem-desfecho {
+  background: var(--alerta-suave);
+  border-color: var(--alerta-linha);
+}
+
+.compromisso.sem-desfecho .detalhe,
+.compromisso.sem-desfecho .duracao {
+  color: var(--alerta-forte);
+}
+
+.pergunta-desfecho {
+  font-size: var(--texto-menor);
+  font-weight: 600;
+  color: var(--alerta-forte);
+}
+
+.compromisso.cancelado .quando,
+.compromisso.cancelado strong {
+  color: var(--tinta-fraca);
+  text-decoration: line-through;
+  text-decoration-color: var(--linha-forte);
+}
+
+@media (max-width: 860px) {
+  .menu-respostas {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+
+  .barra-agenda .barra-busca {
+    flex-basis: 100%;
+  }
+
+  .barra-agenda .alternador {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Três abas, e a contagem aqui é informação, não urgência: sem laranja. */
+.barra-agenda .alternador {
+  grid-template-columns: repeat(3, auto);
+}
+
+.barra-agenda .alternador .contagem {
+  background: var(--coluna-fundo);
+  color: var(--tinta-media);
+}
+
+/* ================================================= agenda: grade no tempo */
+
+.navegacao-agenda {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 14px;
+}
+
+.alternador.modos {
+  grid-template-columns: repeat(4, auto);
+}
+
+.navegacao-agenda .periodo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navegacao-agenda .periodo .botao {
+  margin-right: 6px;
+  padding: 7px 14px;
+}
+
+.navegacao-agenda .periodo h2 {
+  margin: 0 0 0 8px;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+}
+
+.navegacao-agenda .periodo h2::first-letter {
+  text-transform: uppercase;
+}
+
+.virada {
+  transform: rotate(180deg);
+}
+
+.grade-carregando {
+  height: 480px;
+  border-radius: var(--raio-painel);
+}
+
+.grade {
+  --largura-horas: 56px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  overflow: hidden;
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.grade-topo,
+.grade-corpo {
+  display: grid;
+  grid-template-columns: var(--largura-horas) repeat(var(--colunas), minmax(0, 1fr));
+}
+
+.grade-topo {
+  border-bottom: 1px solid var(--linha);
+}
+
+.grade-dia-nome {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-left: 1px solid var(--linha);
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.grade-dia-nome strong {
+  font-size: var(--texto-medio);
+  font-weight: 600;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hoje: o numero ganha um circulo verde, a cor de acao do mundo "quadro verde"
+   (26/09/2026). Antes era preto, que sobrou do visual anterior. */
+.grade-dia-nome.hoje strong {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--acao);
+  color: #fff;
+}
+
+.grade-corpo {
+  max-height: calc(100vh - 250px);
+  min-height: 360px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.grade-horas {
+  position: relative;
+}
+
+.grade-horas span {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: var(--texto-micro);
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+.grade-horas span:first-child {
+  transform: none;
+  margin-top: 3px;
+}
+
+.grade-coluna {
+  position: relative;
+  border-left: 1px solid var(--linha);
+  cursor: pointer;
+}
+
+.grade-linha {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--linha);
+}
+
+.grade-fechado {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--superficie-fria);
+}
+
+.grade-bloqueio {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: var(--coluna-fundo);
+  border-top: 1px solid var(--linha-forte);
+  border-bottom: 1px solid var(--linha-forte);
+  overflow: hidden;
+  cursor: not-allowed;
+}
+
+.grade-bloqueio span {
+  display: block;
+  padding: 4px 6px;
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta-media);
+}
+
+.grade-agora {
+  position: absolute;
+  left: -1px;
+  right: 0;
+  z-index: 3;
+  border-top: 2px solid var(--acao);
+  pointer-events: none;
+}
+
+.grade-agora::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--acao);
+}
+
+.grade-fantasma {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  z-index: 4;
+  padding: 3px 6px;
+  border: 2px dashed var(--tinta-media);
+  border-radius: 6px;
+  background: var(--branco);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta);
+  pointer-events: none;
+}
+
+.grade-evento {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  overflow: hidden;
+  border: 1px solid var(--linha-forte);
+  border-radius: 6px;
+  background: var(--branco);
+  color: var(--tinta);
+  text-align: left;
+  font-size: var(--texto-micro);
+  line-height: 1.3;
+  cursor: pointer;
+  box-shadow: var(--sombra-baixa);
+  transition:
+    transform var(--rapido) var(--saida),
+    box-shadow var(--rapido) var(--saida);
+}
+
+.grade-evento:hover {
+  z-index: 5;
+  transform: translateY(-1px);
+  box-shadow: var(--sombra-media);
+}
+
+.grade-evento[draggable="true"] {
+  cursor: grab;
+}
+
+.grade-evento.curto {
+  flex-direction: row;
+  align-items: center;
+  padding-block: 2px;
+}
+
+.evento-linha {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.evento-hora {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.evento-nome,
+.evento-servico {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.evento-nome {
+  font-weight: 500;
+}
+
+.evento-servico {
+  color: var(--tinta-media);
+}
+
+.evento-icone {
+  flex: 0 0 auto;
+  color: var(--verde);
+}
+
+/* Situação muda a superfície inteira, com a cor de cada função. */
+.grade-evento.compareceu,
+.mes-evento.compareceu {
+  background: var(--verde-fundo);
+  border-color: var(--verde-linha);
+}
+
+.grade-evento.faltou,
+.mes-evento.faltou {
+  background: var(--vermelho-fundo);
+  border-color: var(--vermelho-linha);
+}
+
+.grade-evento.faltou .evento-nome {
+  text-decoration: line-through;
+}
+
+.grade-evento.sem-desfecho,
+.mes-evento.sem-desfecho {
+  background: var(--alerta-suave);
+  border-color: var(--alerta-linha);
+}
+
+.grade-evento.sem-desfecho .evento-hora {
+  color: var(--alerta-forte);
+}
+
+/* Mês */
+
+.grade-mes {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  overflow: hidden;
+  animation: surgir var(--medio) var(--saida) both;
+}
+
+.mes-cabeca {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--linha);
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.mes-dia {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 108px;
+  padding: 6px;
+  border-right: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+  min-width: 0;
+}
+
+.mes-dia:nth-child(7n) {
+  border-right: none;
+}
+
+.mes-dia.fora {
+  background: var(--superficie-fria);
+}
+
+/* Dia que vai receber o card arrastado. No mes muda o dia, nao a hora. */
+.mes-dia.recebendo {
+  background: var(--acao-suave);
+  box-shadow: inset 0 0 0 1px var(--acao);
+}
+
+.mes-dia.recebendo > * {
+  pointer-events: none;
+}
+
+.mes-dia.fora .mes-numero {
+  color: var(--tinta-fraca);
+}
+
+.mes-numero {
+  align-self: flex-start;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 13px;
+  background: none;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.mes-numero:hover {
+  background: var(--superficie-fria);
+}
+
+.mes-dia.hoje .mes-numero {
+  background: var(--acao);
+  color: #fff;
+}
+
+.mes-evento,
+.mes-mais {
+  display: block;
+  width: 100%;
+  padding: 2px 6px;
+  border: 1px solid var(--linha);
+  border-radius: 5px;
+  background: var(--branco);
+  font-size: var(--texto-micro);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.mes-mais {
+  border-color: transparent;
+  background: none;
+  color: var(--tinta-media);
+  font-weight: 600;
+}
+
+.mes-mais:hover,
+.mes-evento:hover {
+  background: var(--superficie-fria);
+}
+
+@media (max-width: 860px) {
+  .navegacao-agenda .periodo h2 {
+    flex-basis: 100%;
+    margin: 6px 0 0;
+  }
+
+  .navegacao-agenda .periodo {
+    flex-wrap: wrap;
+  }
+
+  .alternador.modos {
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .grade {
+    --largura-horas: 44px;
+  }
+
+  .mes-dia {
+    min-height: 64px;
+    padding: 3px;
+  }
+
+  /* No celular o mês mostra quantos há, não os nomes: não cabem. */
+  .mes-evento {
+    padding: 1px 3px;
+  }
+}
+
+@media (max-width: 860px) {
+  /* Sete colunas estreitas: dia da semana em cima, número embaixo. */
+  .grade-semana .grade-dia-nome {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 0;
+    font-size: var(--texto-micro);
+  }
+
+  .grade-semana .grade-dia-nome strong {
+    font-size: var(--texto-base);
+  }
+
+  .grade-semana .grade-evento {
+    padding-inline: 3px;
+  }
+}
+
+/* =============================================== confirmação própria */
+
+.janela.janela-confirmacao {
+  width: min(430px, 100%);
+}
+
+.janela-confirmacao .corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 22px 18px;
+}
+
+.janela-confirmacao h2 {
+  margin: 0;
+  font-size: var(--texto-titulo);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.janela-confirmacao .mensagem {
+  color: var(--tinta-media);
+  line-height: 1.5;
+}
+
+.janela-confirmacao .mensagem strong {
+  color: var(--tinta);
+}
+
+.campo-confirmacao {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.campo-confirmacao textarea {
+  resize: vertical;
+  padding: 9px 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  font-size: var(--texto-base);
+  color: var(--tinta);
+}
+
+.campo-confirmacao textarea:focus {
+  border-color: var(--acao);
+  outline: none;
+}
+
+.botoes-confirmacao {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Ação que destrói algo: vermelho é falha/perda, nunca laranja. */
+.botao.perigo {
+  background: var(--vermelho);
+  border-color: var(--vermelho);
+}
+
+.botao.perigo:hover:not(:disabled) {
+  background: var(--vermelho-forte);
+  border-color: var(--vermelho-forte);
+}
+
+/* ================================================ escolha de horário */
+
+.escolha-horario {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.escolha-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.horarios-vagos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rotulo-vagos {
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  color: var(--tinta-fraca);
+}
+
+.dica-vagos {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.chips-vagos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chips-vagos button {
+  padding: 5px 10px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  font-size: var(--texto-menor);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+  cursor: pointer;
+  transition:
+    background var(--rapido) var(--suave),
+    border-color var(--rapido) var(--suave);
+}
+
+.chips-vagos button:hover {
+  background: var(--superficie-fria);
+}
+
+.chips-vagos button[aria-pressed="true"] {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--fundo);
+}
+
+/* ============================================= detalhe do agendamento */
+
+.detalhe-agendamento {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detalhe-agendamento h3 {
+  margin: 0 0 8px;
+  font-size: var(--texto-menor);
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.detalhe-agendamento .formulario h3 {
+  margin-bottom: -4px;
+}
+
+.detalhe-quem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detalhe-quem > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.detalhe-quem span {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.detalhe-quem .telefone {
+  font-variant-numeric: tabular-nums;
+}
+
+.detalhe-observacao {
+  margin: -6px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--raio);
+  background: var(--superficie-fria);
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.alternador.situacoes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.alternador.situacoes button[aria-pressed="true"] {
+  background: var(--branco);
+  color: var(--tinta);
+  font-weight: 600;
+  box-shadow: var(--sombra-baixa);
+}
+
+/* Passou sem desfecho: as duas respostas possíveis pedem ação. */
+.alternador.situacoes button.destaque {
+  color: var(--alerta-forte);
+  font-weight: 600;
+}
+
+.detalhe-rodape {
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+@media (max-width: 860px) {
+  .escolha-campos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alternador.situacoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================== revisao visual de 19/09/2026
+   Hierarquia, densidade e ancoragem. Ver CLAUDE.md, "Mundo visual". */
+
+/* O numero nao pode pesar mais que a informacao: rotulo mais escuro, valor menor. */
+.valor-grande {
+  font-weight: 600;
+}
+
+.metrica {
+  padding: 16px 18px;
+}
+
+.metrica.principal {
+  padding: 16px 18px;
+}
+
+.metrica .titulo {
+  color: var(--tinta-media);
+  font-weight: 500;
+}
+
+.metrica .valor {
+  margin-top: 8px;
+}
+
+.cabecalho {
+  margin-bottom: 18px;
+  align-items: center;
+}
+
+.cabecalho h1 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* Contagem ao lado do titulo, no lugar do subtitulo que so algumas telas tinham. */
+.contagem-titulo {
+  font-size: var(--texto-medio);
+  font-weight: 500;
+  color: var(--tinta-fraca);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Card "A IA esta dando conta?": duas colunas alinhadas pelo topo. O numero e a
+   barra dele ficam juntos; os numeros de apoio, em grade, do outro lado. */
+.ia-resumo {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 1.4fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.ia-principal .ia-legenda {
+  margin: 6px 0 14px;
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+}
+
+.ia-principal .medidor {
+  margin: 0;
+}
+
+.ia-numeros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+}
+
+.ia-numeros > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--linha);
+}
+
+.ia-numeros dt {
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+  font-weight: 500;
+}
+
+.ia-numeros dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Densidade de ferramenta de trabalho. */
+.bloco {
+  padding: 18px 20px;
+}
+
+.bloco.largo {
+  padding: 20px 22px;
+}
+
+.tabela th {
+  padding: 10px 14px;
+  font-weight: 500;
+}
+
+.tabela td {
+  padding: 7px 14px;
+  height: 50px;
+}
+
+.tabela .botao.discreto {
+  padding: 5px 8px;
+}
+
+/* Apagar na linha: cinza como o resto; so avermelha quando o mouse chega nele.
+   Vermelho cheio fica para a confirmacao, que e onde a pessoa decide. */
+.apagar-linha {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  color: var(--tinta-fraca);
+}
+
+.apagar-linha:hover:not(:disabled) {
+  background: var(--vermelho-fundo);
+  color: var(--vermelho);
+}
+
+@media (max-width: 860px) {
+  .ia-resumo,
+  .ia-numeros {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ia-resumo {
+    gap: 16px;
+  }
+}
+
+/* O corpo da grade rola e ganha barra de rolagem; o cabecalho nao. Sem reservar o
+   mesmo espaco nos dois, o corpo fica mais estreito e as colunas entortam em
+   relacao aos dias (achado de 19/09/2026). */
+.grade-topo,
+.grade-corpo {
+  scrollbar-gutter: stable;
+}
+
+.grade-topo {
+  overflow-y: hidden;
+}
+
+/* ====================================================================== tema escuro
+   Decisao de 19/09/2026. A escolha mora no perfil do usuario (vale em qualquer
+   navegador) e numa copia no navegador, lida pelo index.html antes de desenhar.
+
+   O escuro nao e o claro invertido: o fundo e quase preto, o cartao sobe um degrau
+   de cinza, e as cores de funcao perdem saturacao e ganham luz para continuarem
+   legiveis. A navegacao lateral, que ja era escura, fica mais escura que o fundo,
+   senao ela sumiria dentro dele. */
+
+:root[data-tema="escuro"] {
+  --fundo: #1d2327;
+  --coluna-fundo: #161a1d;
+  --branco: #22282c;
+  --cartao-hover: #283035;
+  --superficie-fria: #2a3533;
+
+  --escuro: #0d5f50;
+  --escuro-alto: rgba(255, 255, 255, 0.1);
+  --escuro-ativo: #ffffff;
+  --escuro-ativo-texto: #0d5f50;
+  --escuro-texto: rgba(255, 255, 255, 0.78);
+  --escuro-texto-forte: #ffffff;
+
+  --tinta: #e6edeb;
+  --tinta-media: #a9b6b3;
+  --tinta-fraca: #74827e;
+
+  --linha: #2a3533;
+  --linha-forte: #36433f;
+  --linha-hover: #4a5855;
+  --borda-cartao: rgba(255, 255, 255, 0.06);
+
+  --acao: #0d5f50;
+  --acao-hover: #0a4f43;
+  --acao-forte: #5fd0b5;
+  --acao-suave: #16332d;
+  --acao-suave-forte: #1d4139;
+  --acao-linha: #245247;
+  --acao-texto: #8fe0cc;
+  --foco: #5fd0b5;
+  --selecao: #1f4a41;
+
+  --alerta: #e27a2c;
+  --alerta-forte: #f5a55a;
+  --alerta-suave: #3a2d17;
+  --alerta-suave-forte: #4a3719;
+  --alerta-linha: #6a4a21;
+  --alerta-texto: #f5b97a;
+
+  --dado: #6f9cfb;
+  --dado-suave: #172338;
+  --dado-linha: #2a4972;
+  --dado-forte: #93c5fd;
+  --progresso: #a08fff;
+  --progresso-suave: #221f38;
+  --dado-suave-forte: #22365a;
+
+  --verde: #4cc684;
+  --verde-fundo: #12291f;
+  --verde-linha: #24513a;
+  --verde-texto: #7ee2b0;
+  --verde-claro: #4cc684;
+  --verde-vivo: #4cc684;
+
+  --vermelho: #f0645f;
+  --vermelho-fundo: #3b201d;
+  --vermelho-linha: #5d2a28;
+  --vermelho-texto: #f08278;
+  --vermelho-forte: #c23b32;
+
+  --balao-saida: #16332d;
+  --balao-saida-linha: #245247;
+  --esqueleto: #2a3533;
+  --selecionado: #16332d;
+  --rolagem: #36433f;
+  --rolagem-forte: #4a5855;
+
+  --sombra-baixa: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sombra-media: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --sombra-alta: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --sombra-arrasto: 0 16px 34px rgba(0, 0, 0, 0.6);
+}
+
+/* Branco puro so faz sentido sobre o laranja e sobre a navegacao; no resto do tema
+   escuro ele vira a tinta clara. */
+:root[data-tema="escuro"] .qrcode img,
+:root[data-tema="escuro"] .midia-foto {
+  background: #ffffff;
+}
+
+/* A foto do QR Code precisa de fundo branco para a camera ler. */
+:root[data-tema="escuro"] .qrcode.com-codigo img {
+  padding: 10px;
+}
+
+/* ======================================================================== perfil */
+
+.perfil {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  align-items: start;
+  max-width: 900px;
+}
+
+.perfil-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.titulo-com-sinal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* A aparencia salva sozinha; sem este aviso, nada diz que ficou gravado. */
+.sinal-salvo {
+  margin: 0 0 13px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--verde-fundo);
+  color: var(--verde-texto);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  animation: surgir var(--rapido) var(--saida) both;
+}
+
+/* So leitura: sem borda e sem fundo branco, para nao parecer um campo de digitar. */
+.campo-leitura {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 12px;
+  border-radius: var(--raio);
+  background: var(--superficie-fria);
+}
+
+.rotulo-leitura {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+.valor-leitura {
+  color: var(--tinta);
+  overflow-wrap: anywhere;
+}
+
+.campo-senha {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.campo-senha input {
+  flex: 1;
+  min-width: 0;
+}
+
+.campo-senha .botao-icone {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+}
+
+.opcoes-tema {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.opcao-tema {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  background: none;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--rapido) var(--suave),
+    background var(--rapido) var(--suave);
+}
+
+.opcao-tema:hover {
+  background: var(--superficie-fria);
+}
+
+.opcao-tema[aria-checked="true"] {
+  border-color: var(--acao);
+  background: var(--acao-suave);
+}
+
+.opcao-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.opcao-textos strong {
+  font-weight: 600;
+}
+
+.opcao-textos span {
+  font-size: var(--texto-menor);
+  color: var(--tinta-media);
+}
+
+/* Miniatura da tela: mostra o tema em vez de descreve-lo. */
+.miniatura {
+  display: flex;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 44px;
+  border: 1px solid var(--linha-forte);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mini-lateral {
+  width: 18px;
+  background: #0f7b67;
+}
+
+.mini-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 6px;
+  background: #f5f6f8;
+}
+
+.mini-cartao {
+  height: 7px;
+  border-radius: 2px;
+  background: #ffffff;
+  border: 1px solid #e2e5ea;
+}
+
+.mini-cartao.curto {
+  width: 60%;
+}
+
+.tema-escuro .mini-lateral {
+  background: #0b0e14;
+}
+
+.tema-escuro .mini-corpo {
+  background: #11151d;
+}
+
+.tema-escuro .mini-cartao {
+  background: #1a1f2a;
+  border-color: #2a3140;
+}
+
+/* "Igual ao computador": a miniatura mistura os dois, sem degrade. */
+.tema-sistema .mini-lateral {
+  background: #0b0e14;
+}
+
+.tema-sistema .mini-cartao:last-child {
+  background: #1a1f2a;
+  border-color: #2a3140;
+}
+
+.erro-campo {
+  color: var(--vermelho-texto);
+}
+
+.nota-senha {
+  margin: 4px 0 0;
+  font-size: var(--texto-menor);
+  color: var(--tinta-fraca);
+  line-height: 1.5;
+}
+
+/* Usuario no rodape da navegacao: leva ao perfil. Mesma caixa do estado do
+   WhatsApp (mesma largura, mesmo raio), com fundo mais discreto que o item ativo
+   da navegacao — senao parece a pagina aberta. */
+.lateral .usuario-lateral {
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: var(--escuro-alto);
+}
+
+.lateral .usuario-lateral:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Perfil aberto: fundo branco como todo item ativo, entao o e-mail vira verde. */
+.lateral .usuario-lateral[aria-current="true"] .usuario-email {
+  color: var(--escuro-ativo-texto);
+}
+
+/* Ao abrir a barra, os nomes aparecem em 0,12s, como na referencia. A largura
+   troca seca: animar width recalcula o layout a cada quadro. */
+.lateral .rotulo,
+.lateral .marca-textos {
+  animation: rotulo-aparece 120ms var(--suave) both;
+}
+
+@keyframes rotulo-aparece {
+  from {
+    opacity: 0;
+  }
+}
+
+.lateral .usuario-lateral .com-icone {
+  gap: 10px;
+  min-width: 0;
+}
+
+.divisor-lateral {
+  height: 1px;
+  margin: 10px 2px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.usuario-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+/* E-mail comprido ("contato@clinicasorrisovivo.com.br") nao pode empurrar a caixa. */
+.usuario-nome,
+.usuario-email {
+  display: block;
+  max-width: 130px;
+}
+
+.usuario-nome {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-email {
+  font-size: var(--texto-micro);
+  color: var(--escuro-texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================================================ janela do lead (funil)
+   Desenho da referencia escolhida pelo dono (25/09/2026): janela no centro, nome
+   grande, grade de propriedades, resumo como descricao e a atividade a direita.
+   Substitui a gaveta lateral de 440px. Cantos de 14px, como a especificacao. */
+
+.janela-lead {
+  width: min(1180px, 100%);
+  height: min(820px, 100%);
+  /* Sem coluna explicita, o grid cresce com o conteudo e passa da tela no celular. */
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--branco);
+  border: 1px solid var(--borda-cartao);
+  border-radius: 14px;
+  box-shadow: var(--sombra-alta);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  animation: ampliar var(--medio) var(--saida) both;
+}
+
+.janela-lead-topo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.trilha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--tinta-media);
+  font-size: var(--texto-base);
+}
+
+.trilha .icone {
+  color: var(--tinta-fraca);
+  flex: 0 0 auto;
+}
+
+.trilha .separador {
+  color: var(--tinta-fraca);
+}
+
+.trilha strong {
+  color: var(--tinta);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.janela-lead-topo .criado-em {
+  margin-left: auto;
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+  white-space: nowrap;
+}
+
+/* Fechar e saida, nao acao: icone sem moldura, que so ganha fundo no hover. */
+.fechar-gaveta {
+  background: none;
+  border: 0;
+  padding: 6px;
+  margin: -4px -6px -4px 0;
+  border-radius: var(--raio);
+  color: var(--tinta-fraca);
+  line-height: 0;
+  cursor: pointer;
+  transition:
+    background var(--rapido) var(--suave),
+    color var(--rapido) var(--suave);
+}
+
+.fechar-gaveta:hover {
+  background: var(--superficie-fria);
+  color: var(--tinta);
+}
+
+.janela-lead-corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 0;
+}
+
+.janela-lead-principal {
+  overflow-y: auto;
+  padding: 30px 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.janela-lead-principal h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+/* Grade de propriedades em duas colunas, cada uma com icone, rotulo e valor. */
+.propriedades {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 32px;
+  margin: 0;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.propriedade {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+}
+
+.propriedade dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--tinta-media);
+  min-width: 0;
+}
+
+.propriedade dt .icone {
+  display: inline-flex;
+  color: var(--tinta-fraca);
+  flex: 0 0 auto;
+}
+
+.propriedade dd {
+  margin: 0;
+  min-width: 0;
+  color: var(--tinta);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.propriedade .numero {
+  font-variant-numeric: tabular-nums;
+}
+
+.valor-lead {
+  color: var(--verde-texto);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* O estagio e uma pilula que tambem e o seletor: mover o lead e trocar a
+   propriedade. O select fica por cima, transparente, e a pilula desenha. */
+.pilula-estagio {
+  --estado: var(--progresso);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, var(--estado) 45%, transparent);
+  background: color-mix(in srgb, var(--estado) 14%, transparent);
+  border-radius: 6px;
+  color: var(--tinta);
+  font-weight: 600;
+  font-size: var(--texto-menor);
+  cursor: pointer;
+}
+
+.pilula-estagio.inicio {
+  --estado: var(--tinta-fraca);
+}
+
+.pilula-estagio.ganho {
+  --estado: var(--verde);
+}
+
+.pilula-estagio.perdido {
+  --estado: var(--vermelho);
+}
+
+.pilula-estagio .icone-estagio {
+  color: var(--estado);
+  flex: 0 0 auto;
+}
+
+.pilula-estagio select {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0 14px 0 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+
+/* Seta desenhada, porque o select sem aparencia perde a dele. */
+.pilula-estagio::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.pilula-estagio:focus-within {
+  outline: 2px solid var(--acao);
+  outline-offset: 2px;
+}
+
+.pilula-estagio select:focus-visible {
+  outline: none;
+}
+
+.propriedade .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag.adicionar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px dashed var(--linha-forte);
+  color: var(--tinta-fraca);
+  padding: 3px 9px;
+  font-size: var(--texto-menor);
+  cursor: pointer;
+  transition:
+    color var(--rapido) var(--suave),
+    border-color var(--rapido) var(--suave);
+}
+
+.tag.adicionar:hover {
+  color: var(--tinta);
+  border-color: var(--tinta-fraca);
+}
+
+.descricao-lead p {
+  margin: 0;
+  font-size: var(--texto-medio);
+  line-height: 1.6;
+  color: var(--tinta);
+}
+
+.descricao-lead .proximo-passo {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.secao-lead h3,
+.janela-lead-atividade h3 {
+  margin: 0 0 14px;
+  font-size: var(--texto-medio);
+  font-weight: 700;
+}
+
+.lista-agendamentos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.linha-agendamento {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  font-size: var(--texto-base);
+}
+
+.linha-agendamento .icone {
+  color: var(--tinta-fraca);
+  margin-top: 2px;
+}
+
+.linha-agendamento strong {
+  display: block;
+  font-weight: 600;
+}
+
+.linha-agendamento .quando {
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A direita, a atividade e, no pe, as acoes: onde a referencia tem a caixa de
+   comentario. */
+.janela-lead-atividade {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 26px 22px 18px;
+  border-left: 1px solid var(--linha);
+}
+
+.janela-lead-atividade .linha-do-tempo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.linha-do-tempo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: var(--texto-menor);
+}
+
+.linha-do-tempo .quando {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-micro);
+}
+
+.linha-do-tempo .vazio {
+  margin-top: auto;
+  padding: 0;
+  text-align: left;
+}
+
+.acoes-lead {
+  display: flex;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: var(--fundo);
+}
+
+/* Assumir a conversa e a acao da tela; abrir no WhatsApp e alternativa. */
+.acoes-lead .botao {
+  flex: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.acoes-lead .botao.discreto {
+  flex: 0 1 auto;
+}
+
+@media (max-width: 860px) {
+  .cortina.centralizada:has(.janela-lead) {
+    padding: 0;
+  }
+
+  .janela-lead {
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .janela-lead-corpo {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .janela-lead-principal {
+    overflow: visible;
+    padding: 22px 18px;
+  }
+
+  .janela-lead-atividade {
+    border-left: 0;
+    border-top: 1px solid var(--linha);
+  }
+
+  .propriedades {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .propriedade {
+    grid-template-columns: 130px minmax(0, 1fr);
+  }
+
+  .janela-lead-topo .criado-em {
+    display: none;
+  }
+
+  .janela-lead-topo .fechar-gaveta {
+    margin-left: auto;
+  }
+}
+
+/* Celular estreito: os dois botoes nao cabem lado a lado sem quebrar o texto. */
+@media (max-width: 420px) {
+  .acoes-lead {
+    flex-wrap: wrap;
+  }
+}
+
+/* ================================================ barra lateral recolhida
+   Como na referencia do dono (24/09/2026): a barra recolhe para so icones e abre
+   de novo pelo botao do rodape. A escolha fica no navegador. Troca seca, sem
+   animar a largura: animar width recalcula o layout a cada quadro. */
+
+.lateral .marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lateral .marca-textos {
+  display: block;
+  min-width: 0;
+}
+
+.lateral .marca-inicial {
+  display: none;
+}
+
+/* O sinal e o texto andam juntos; o botao da lateral espalha os filhos. */
+.lateral .estado-conexao {
+  justify-content: flex-start;
+}
+
+@media (min-width: 861px) {
+  .app.lateral-recolhida {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .lateral-recolhida .lateral {
+    padding: 16px 10px 14px;
+    align-items: center;
+  }
+
+  .lateral-recolhida .lateral .rotulo,
+  .lateral-recolhida .lateral .marca-textos {
+    display: none;
+  }
+
+  .lateral-recolhida .lateral .marca {
+    padding: 0 0 16px;
+  }
+
+  .lateral-recolhida .lateral .marca-inicial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--escuro-alto);
+    color: var(--escuro-texto-forte);
+    font-size: var(--texto-menor);
+    font-weight: 600;
+  }
+
+  .lateral-recolhida .lateral button,
+  .lateral-recolhida .lateral .estado-conexao,
+  .lateral-recolhida .lateral .usuario-lateral {
+    position: relative;
+    width: 44px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .lateral-recolhida .lateral .com-icone {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .lateral-recolhida .lateral .rodape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .lateral-recolhida .divisor-lateral {
+    width: 32px;
+  }
+
+  /* So o numero que pede acao sobrevive, como selo no canto do icone. */
+  .lateral-recolhida .lateral button .contagem {
+    display: none;
+  }
+
+  .lateral-recolhida .lateral button .contagem.urgente {
+    display: block;
+    position: absolute;
+    top: 3px;
+    right: 1px;
+    min-width: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+  }
+}
+
+/* ============================================================ etiquetas coloridas
+   Como na referencia (25/09/2026): cada etiqueta tem uma cor fixa, tirada do nome,
+   com o fundo a 24% e o texto na tinta normal. */
+
+.tag.colorida,
+.cartao .tag.colorida {
+  display: inline-block;
+  max-width: 100%;
+  background: color-mix(in srgb, var(--cor) 24%, transparent);
+  color: var(--tinta);
+  border: 0;
+  border-radius: 5px;
+  padding: 0 7px;
+  font-size: var(--texto-micro);
+  font-weight: 500;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* Seletor de etiquetas: as marcadas sao o botao; a caixa abre embaixo, com busca,
+   a lista com um visto nas marcadas e "Criar" quando o texto nao existe. */
+.escolher-etiquetas {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.etiquetas-atuais {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  margin: -3px -6px;
+  padding: 3px 6px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--rapido) var(--suave);
+}
+
+.etiquetas-atuais:hover,
+.etiquetas-atuais[aria-expanded="true"] {
+  background: var(--superficie-fria);
+}
+
+.sem-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--tinta-fraca);
+  font-weight: 500;
+}
+
+.menu-etiquetas {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  width: 300px;
+  max-width: 80vw;
+  padding: 8px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  box-shadow: var(--sombra-alta);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.menu-etiquetas .campo {
+  width: 100%;
+}
+
+.menu-etiquetas ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.menu-etiquetas li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--tinta-media);
+}
+
+.menu-etiquetas li button.destacada {
+  background: var(--superficie-fria);
+}
+
+.menu-etiquetas .visto {
+  flex: 0 0 auto;
+  color: var(--acao-forte);
+}
+
+.menu-etiquetas li button.criar {
+  justify-content: flex-start;
+  font-size: var(--texto-menor);
+}
+
+.menu-etiquetas .vazio {
+  padding: 10px 8px;
+  text-align: left;
+}
+
+/* ============================================================== texto editavel
+   Clica e escreve (25/09/2026): sem lapis, sem botao de editar. Parado, e texto
+   comum que so ganha um fundo leve no hover; editando, vira campo do mesmo tamanho,
+   para a linha nao pular. */
+
+.texto-editavel {
+  display: inline-block;
+  max-width: 100%;
+  margin: -3px -6px;
+  padding: 3px 6px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: text;
+  overflow-wrap: anywhere;
+  transition: background var(--rapido) var(--suave);
+}
+
+button.texto-editavel:hover {
+  background: var(--superficie-fria);
+}
+
+.texto-editavel.sem-valor {
+  color: var(--tinta-fraca);
+  font-weight: 400;
+}
+
+input.texto-editavel {
+  width: calc(100% + 12px);
+  background: var(--branco);
+  border-color: var(--acao);
+  outline: none;
+  cursor: text;
+}
+
+/* O nome no topo da janela continua grande enquanto se escreve. */
+.janela-lead-principal h2 .texto-editavel {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+
+/* O valor continua verde quando vira texto editavel; vazio, fica apagado. */
+.texto-editavel.valor-lead:not(.sem-valor) {
+  color: var(--verde-texto);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ======================================================= responsavel e espera
+   No rodape do card do funil (25/09/2026). O selo redondo diz quem esta atendendo,
+   como o responsavel da referencia: "IA" em verde, ou voce em azul. E o tempo fica
+   laranja e diz "Esperando ha 6 min" quando alguem mandou mensagem e ninguem
+   respondeu. Assim nenhum dos dois ocupa o lugar de uma etiqueta. */
+
+.responsavel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.responsavel.ia {
+  background: var(--acao);
+}
+
+.responsavel.voce {
+  background: var(--dado);
+}
+
+/* O tempo vai sempre para o canto direito: o mesmo lugar em todo card. */
+.rodape-cartao .tempo-cartao {
+  margin-left: auto;
+}
+
+.tempo-cartao.esperando {
+  background: var(--alerta-suave-forte);
+  color: var(--alerta-texto);
+}
+
+/* ============================================================ responsavel
+   Propriedade da janela do lead, como na referencia (25/09/2026): mostra quem
+   atende e troca num menu, no lugar do antigo "Assumir conversa". */
+
+.selo-com-dica {
+  display: inline-flex;
+}
+
+/* Os menus se alinham pela borda direita do campo: assim abrem para dentro da
+   janela, esteja a propriedade na coluna da esquerda ou na da direita. Alinhados
+   pela esquerda, os da coluna da direita saiam cortados. */
+.escolher-responsavel {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.responsavel-atual {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: -3px -6px;
+  padding: 3px 6px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+  transition: background var(--rapido) var(--suave);
+}
+
+.responsavel-atual:hover:not(:disabled),
+.responsavel-atual[aria-expanded="true"] {
+  background: var(--superficie-fria);
+}
+
+.responsavel-atual:disabled {
+  cursor: default;
+}
+
+.menu-responsavel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  width: 250px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  box-shadow: var(--sombra-alta);
+  animation: ampliar var(--rapido) var(--saida) both;
+}
+
+.menu-responsavel button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  color: var(--tinta);
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-responsavel button:hover {
+  background: var(--superficie-fria);
+}
+
+.menu-responsavel .nome {
+  font-weight: 600;
+}
+
+.menu-responsavel .detalhe {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+.menu-responsavel .visto {
+  margin-left: auto;
+  color: var(--acao-forte);
+}
+
+/* A contagem do filtro "Com voce" e azul, a cor do selo de quem atende: e
+   informacao de quem cuida, nao alerta. */
+.alternador .contagem.info {
+  background: var(--dado);
+  color: #fff;
+}
+
+/* ======================================================== conversas, 26/09/2026
+   A lista e o topo da conversa falam a mesma lingua do funil: quem atende e o
+   selo no canto do avatar, quem espera e o proprio tempo em laranja, e trocar de
+   responsavel e o mesmo menu da janela do lead. */
+
+.avatar-com-selo {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.avatar-com-selo .responsavel {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  font-size: 7px;
+  /* Anel da cor da linha: separa o selo do avatar sem borda colorida. */
+  box-shadow: 0 0 0 2px var(--branco);
+}
+
+.linha-conversa.precisa .avatar-com-selo .responsavel {
+  box-shadow: 0 0 0 2px var(--alerta-suave);
+}
+
+.linha-conversa time.esperando {
+  color: var(--alerta-texto);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Estagio so para ler (na conversa nao se move o lead): sem seta, sem clique. */
+.pilula-estagio.somente-leitura {
+  cursor: default;
+  padding: 1px 9px;
+}
+
+.pilula-estagio.somente-leitura::after {
+  display: none;
+}
+
+.responsavel-conversa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rotulo-responsavel {
+  color: var(--tinta-fraca);
+  font-size: var(--texto-menor);
+}
+
+/* ========================================================== contatos, 26/09/2026
+   A linha abre a janela do lead (a mesma do funil). As acoes aparecem so com o
+   ponteiro na linha; em tela de toque, que nao tem ponteiro, ficam sempre. */
+
+.linha-clicavel {
+  cursor: pointer;
+}
+
+.linha-clicavel:hover td {
+  background: var(--superficie-fria);
+}
+
+.acoes-linha > * {
+  opacity: 0;
+  transition: opacity var(--rapido) var(--suave);
+}
+
+.linha-clicavel:hover .acoes-linha > *,
+.linha-clicavel:focus-within .acoes-linha > * {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .acoes-linha > * {
+    opacity: 1;
+  }
+}
+
+/* Busca em pilula em todas as telas, como no funil. */
+.barra-busca input {
+  border-radius: 999px;
+}
+
+/* Conversas com o titulo no topo da pagina: a caixa de entrada ocupa o resto. */
+.tela-conversas {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  min-height: 460px;
+}
+
+.tela-conversas .caixa-entrada {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+@media (max-width: 860px) {
+  .tela-conversas {
+    height: calc(100vh - 150px);
+  }
+}
+
+/* Perfil: os dados no mesmo formato de propriedade da janela do lead, numa coluna. */
+.propriedades.perfil-dados {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.perfil-dados .propriedade {
+  grid-template-columns: 130px minmax(0, 1fr);
+}
+
+/* Com voce E esperando: o laranja ganha do azul. O contorno diz o que pede acao. */
+.cartao.aguardando.humano {
+  border-color: var(--alerta);
+}
+
+/* ============================================= painel no mundo novo (26/09/2026)
+   Referencia do dono: cartoes de numero tingidos, cada um na cor de dado que ja
+   usa no sistema (azul = leads, verde = agenda, roxo = progresso da IA). O cartao
+   "Com voce" e o unico branco: e o unico que pede acao, e o contorno laranja so
+   aparece nele. Grafico grande com um dia em destaque e o valor num balao. */
+
+.metrica.tingida {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.metrica.tingida.dado {
+  background: var(--dado-suave);
+}
+.metrica.tingida.acao {
+  background: var(--acao-suave);
+}
+.metrica.tingida.progresso {
+  background: var(--progresso-suave);
+}
+
+.metrica.tingida.dado .titulo .icone {
+  color: var(--dado);
+}
+.metrica.tingida.acao .titulo .icone {
+  color: var(--acao);
+}
+.metrica.tingida.progresso .titulo .icone {
+  color: var(--progresso);
+}
+
+.metrica .valor .unidade {
+  font-size: var(--texto-cabecalho);
+  color: var(--tinta-media);
+  margin-left: 2px;
+}
+
+.metrica.principal .titulo .icone {
+  color: var(--dado);
+}
+
+.metrica.principal.urgente .titulo,
+.metrica.principal.urgente .titulo .icone,
+.metrica.principal.urgente .valor {
+  color: inherit;
+}
+
+.metrica.principal.urgente .titulo .icone {
+  color: var(--dado);
+}
+
+.metrica.principal .valor {
+  font-size: var(--numero);
+}
+
+.metrica .rodape-metrica {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metrica .esperando {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--alerta-forte);
+  font-size: var(--texto-menor);
+  font-weight: 600;
+}
+
+.metrica .rodape-metrica .botao {
+  padding: 6px 12px;
+}
+
+.valor-com-linha {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mini-linha {
+  width: 76px;
+  height: 28px;
+  color: var(--dado);
+  flex: none;
+  margin-bottom: 2px;
+}
+
+/* O numero de apoio ganha um selo branco, como o "13,4%" da referencia. */
+.selo-numero {
+  display: inline-block;
+  padding: 0 6px;
+  margin-right: 2px;
+  border-radius: 5px;
+  background: var(--branco);
+  color: var(--tinta);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrica.tingida .contexto {
+  color: var(--tinta-media);
+}
+
+/* Duas colunas: a larga com o grafico, a estreita com funil e comparecimento.
+   Cada coluna empilha os seus blocos, sem uma altura amarrar a outra. */
+.painel-grade {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.painel-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bloco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.bloco-topo h3 {
+  margin: 0;
+}
+
+.contagem-bloco {
+  color: var(--tinta-fraca);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.alternador.pequeno {
+  grid-template-columns: auto auto;
+}
+
+.alternador.pequeno button {
+  padding: 4px 10px;
+}
+
+.total-periodo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.total-periodo .legenda {
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+}
+
+.grafico-leads .grafico {
+  height: 190px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.grafico-leads .barra-coluna {
+  cursor: default;
+}
+
+.grafico-leads .area-barra {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  padding-top: 30px;
+}
+
+/* Barra clara; so a do dia em foco (hoje, ou a que esta sob o ponteiro) e cheia. */
+.grafico-leads .barra {
+  position: relative;
+  background: var(--dado-suave-forte);
+  border-radius: 6px 6px 3px 3px;
+  min-height: 4px;
+}
+
+.grafico-leads .barra-coluna:hover .barra,
+.grafico-leads .barra-coluna.em-foco .barra {
+  background: var(--dado);
+}
+
+.balao-valor {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--tinta);
+  color: var(--fundo);
+  font-size: var(--texto-micro);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.grafico-leads .rotulo-dia {
+  margin-top: 9px;
+  padding: 2px 0;
+  width: 100%;
+  text-align: center;
+  border-radius: 6px;
+  background: var(--superficie-fria);
+  color: var(--tinta-media);
+}
+
+.grafico-leads .rotulo-dia.hoje {
+  background: var(--tinta);
+  color: var(--fundo);
+  font-weight: 600;
+}
+
+/* Numeros do atendimento lado a lado, como mini metricas. */
+.numeros-lado {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.numeros-lado > div {
+  padding: 12px 14px;
+  border-radius: var(--raio-card);
+  background: var(--superficie-fria);
+}
+
+.numeros-lado dt {
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+  font-weight: 500;
+}
+
+.numeros-lado dd {
+  margin: 4px 0 0;
+  font-size: var(--texto-cabecalho);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Funil resumido: nome e numero em cima, trilho fino embaixo. */
+.linha-funil {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.linha-funil:last-child {
+  margin-bottom: 0;
+}
+
+.linha-funil-textos {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.linha-funil .nome {
+  flex: 1;
+}
+
+.linha-funil .quantidade {
+  flex: none;
+}
+
+.linha-funil .trilho {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.linha-funil .preenchimento {
+  background: var(--progresso);
+  border-radius: 4px;
+}
+
+.bloco.tingido-acao {
+  background: var(--acao-suave);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.bloco.tingido-acao .medidor {
+  background: var(--branco);
+}
+
+.bloco.tingido-acao .medidor .preenchimento {
+  background: var(--acao);
+}
+
+.legenda-comparecimento {
+  margin: 10px 0 0;
+  color: var(--tinta-media);
+  font-size: var(--texto-menor);
+}
+
+@media (max-width: 980px) {
+  .painel-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .numeros-lado {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* "Com voce" tambem tingido (pedido do dono, 26/09/2026): branco no meio de tres
+   cartoes coloridos parecia fora do lugar. Sem ninguem esperando, fundo neutro;
+   com alguem esperando, o fundo vira o laranja suave do alerta. Os quatro cartoes
+   tem a mesma largura. */
+.metricas {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metrica.principal {
+  background: var(--superficie-fria);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.metrica.principal.urgente {
+  background: var(--alerta-suave);
+  border-color: transparent;
+}
+
+.metrica.principal.urgente .titulo .icone {
+  color: var(--alerta);
+}
+
+@media (max-width: 980px) {
+  .metricas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================== comentarios na atividade do lead
+   Pedido do dono (26/09/2026), no lugar onde a referencia tem a caixa de
+   comentario. O comentario se distingue do historico por ter fundo e autor: o
+   historico e o sistema contando o que aconteceu; o comentario e gente falando. */
+
+.comentario {
+  padding: 10px 12px;
+  border-radius: var(--raio-card);
+  background: var(--superficie-fria);
+}
+
+.comentario-topo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.comentario-topo strong {
+  font-weight: 600;
+}
+
+.comentario-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--tinta);
+}
+
+.apagar-comentario {
+  margin-left: auto;
+  align-self: center;
+  display: inline-flex;
+  padding: 3px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--tinta-fraca);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--rapido) var(--suave);
+}
+
+.comentario:hover .apagar-comentario,
+.apagar-comentario:focus-visible {
+  opacity: 1;
+}
+
+.apagar-comentario:hover {
+  background: var(--vermelho-fundo);
+  color: var(--vermelho);
+}
+
+@media (hover: none) {
+  .apagar-comentario {
+    opacity: 1;
+  }
+}
+
+.caixa-comentario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: var(--fundo);
+  transition: border-color var(--rapido) var(--suave);
+}
+
+.caixa-comentario:focus-within {
+  border-color: var(--acao);
+}
+
+.caixa-comentario textarea {
+  width: 100%;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: none;
+  font: inherit;
+  font-size: var(--texto-base);
+  color: var(--tinta);
+  padding: 0;
+  /* Cresce com o texto ate um teto, sem barra de rolagem em duas linhas. */
+  field-sizing: content;
+  min-height: 42px;
+  max-height: 140px;
+}
+
+.caixa-comentario textarea::placeholder {
+  color: var(--tinta-fraca);
+}
+
+.caixa-comentario .botao {
+  align-self: flex-end;
+  padding: 5px 12px;
+}
+
+/* As acoes descem para baixo da caixa de comentario, sem moldura propria. */
+.caixa-comentario + .acoes-lead {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* ================================================ agenda no mundo novo (26/09/2026)
+   Pedido do dono: sem as faixas cinza (fora do funcionamento, bloqueio, dias de
+   outro mes) e sem o aviso solto no topo. O fora do horario fica branco e apenas
+   nao aceita clique; o bloqueio vira uma moldura tracejada com o motivo; e cada
+   agendamento ganha a cor clara da sua situacao, como as etiquetas do funil. */
+
+.grade-fechado {
+  background: none;
+  cursor: default;
+}
+
+.grade-bloqueio {
+  background: var(--branco);
+  border: 1px dashed var(--linha-hover);
+  border-radius: 6px;
+  left: 2px;
+  right: 2px;
+}
+
+.grade-bloqueio span {
+  color: var(--tinta-fraca);
+}
+
+.mes-dia.fora {
+  background: none;
+}
+
+.mes-dia.fora .mes-numero {
+  color: var(--linha-hover);
+}
+
+.mes-dia.fora .mes-evento {
+  opacity: 0.6;
+}
+
+/* Cards: borda transparente e fundo na cor da situacao. */
+.grade-evento,
+.mes-evento {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.grade-evento.agendado,
+.mes-evento.agendado {
+  background: var(--dado-suave);
+}
+
+.grade-evento.confirmado,
+.mes-evento.confirmado {
+  background: var(--acao-suave);
+}
+
+.grade-evento.confirmado .evento-icone {
+  color: var(--acao);
+}
+
+.grade-evento.compareceu,
+.mes-evento.compareceu {
+  background: var(--verde-fundo);
+  border-color: transparent;
+}
+
+.grade-evento.faltou,
+.mes-evento.faltou {
+  background: var(--vermelho-fundo);
+  border-color: transparent;
+  color: var(--tinta-media);
+}
+
+.grade-evento.sem-desfecho,
+.mes-evento.sem-desfecho {
+  background: var(--alerta-suave);
+  border-color: var(--alerta);
+}
+
+.grade-evento:hover {
+  box-shadow: var(--sombra-media);
+}
+
+.grade-evento .evento-hora {
+  color: var(--tinta-media);
+}
+
+.grade-evento .evento-nome {
+  font-weight: 600;
+}
+
+/* Botao "Confirmar presenca" na barra do calendario, encostado a direita. */
+.confirmar-presenca {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 1px solid var(--alerta-linha);
+  border-radius: 999px;
+  background: var(--alerta-suave);
+  color: var(--alerta-texto);
+  font: inherit;
+  font-size: var(--texto-menor);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--rapido) var(--suave);
+}
+
+.confirmar-presenca:hover {
+  background: var(--alerta-suave-forte);
+}
+
+.confirmar-presenca .contagem {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--alerta);
+  color: #fff;
+  font-size: var(--texto-micro);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .confirmar-presenca {
+    margin-left: 0;
+  }
+}
+
+/* Dia em que o negocio nao abre: a coluna existe e aceita clique (a equipe marca
+   como numa agenda normal), so o nome do dia fica mais claro. Sem fundo cinza. */
+.grade-dia-nome.fechado,
+.grade-dia-nome.fechado strong {
+  color: var(--tinta-fraca);
+}
+
+.grade-bloqueio {
+  cursor: pointer;
+}
+
+.grade-bloqueio span {
+  pointer-events: none;
+}
+
+/* Marcar no mes: o dia inteiro aceita clique e o "+" aparece no canto com o
+   ponteiro em cima (26/09/2026). Sem ponteiro (toque), o "+" fica sempre. */
+.mes-dia {
+  position: relative;
+  cursor: pointer;
+}
+
+.mes-marcar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--acao-suave);
+  color: var(--acao-texto);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--rapido) var(--suave);
+}
+
+.mes-dia:hover .mes-marcar,
+.mes-marcar:focus-visible {
+  opacity: 1;
+}
+
+.mes-marcar:hover {
+  background: var(--acao-suave-forte);
+}
+
+@media (hover: none) {
+  .mes-marcar {
+    opacity: 1;
+  }
+}

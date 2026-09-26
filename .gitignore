@@ -1,0 +1,16 @@
+node_modules/
+dist/
+sistema/web/dist/
+*.log
+.DS_Store
+
+# Os dados do seu negocio. Nada disto e nosso, e nada disto volta pro repositorio.
+.env
+.env.*
+!.env.example
+sistema/dados/
+sistema/negocio/negocio.json
+sistema/negocio/conhecimento.md
+sistema/backups/
+sistema/mudou-para-vps.txt
+*.tar.gz
