@@ -176,9 +176,9 @@ Leia antes de escrever: tem armadilha ali que quebra o sistema na hora de ligar.
 
 O atendente precisa de uma chave da Anthropic, cobrada direto no cartão da pessoa.
 
-> Agora preciso da chave que faz a IA pensar. Você cria em console.anthropic.com, no menu "API
-> Keys". Vai pedir um cartão e um crédito inicial: recomendo começar com **5 dólares**, que duram
-> bastante, dependendo de quantas conversas chegarem.
+> Agora a chave que faz a IA pensar. Você cria em console.anthropic.com, no menu "API Keys". Vai
+> pedir um cartão e um crédito inicial: recomendo começar com **5 dólares**, que duram bastante,
+> dependendo de quantas conversas chegarem.
 
 **Recomende os 5 dólares e pare aí.** Nada de "custa tanto por conversa", "com 5 dólares dá para
 tantos atendimentos" ou qualquer conta. O detalhe do custo é assunto das aulas, e uma conta sua
@@ -186,8 +186,27 @@ que não bata com a realidade vira reclamação. Se ela perguntar quanto vai gas
 depende do movimento e que o consumo aparece no site da Anthropic, no mesmo lugar onde ela criou
 a chave.
 
-Ela cola a chave. Você **não escreve a chave em lugar nenhum além do `.env`**, e nunca a repete
-na tela.
+### A chave vai direto para o arquivo, não para a conversa
+
+**Não peça para ela colar a chave aqui.** Chave colada na conversa fica gravada no histórico da
+ferramenta e aparece em qualquer gravação de tela; e pedir a chave para, logo depois, avisar que
+"não foi seguro" e mandar trocar deixa a pessoa se sentindo culpada por ter obedecido (aconteceu no
+teste de 27/09/2026). O caminho é ela mesma colar no arquivo:
+
+1. Garanta que existe `sistema/.env`: se não existir, copie `sistema/.env.example` (ou rode
+   `npm run pc` uma vez: ele cria o arquivo e para pedindo a chave).
+2. **Abra o arquivo para ela.** No VS Code: `code sistema/.env` (abre na mesma janela). Fora dele,
+   no Windows: `notepad sistema\.env`; no Mac: `open -e sistema/.env`.
+3. Diga, com essas palavras ou parecidas: *"Abri o arquivo de configuração. Na linha que começa
+   com ANTHROPIC_API_KEY=, cole a chave logo depois do sinal de igual, sem espaço, e salve com
+   Ctrl+S. Me avise quando salvar."*
+4. **Confira sem mostrar**: leia a linha e diga só se está certa, nunca o valor. Certa é começar
+   com `sk-ant-` e não ter espaço nem aspas. Se estiver errada, diga o que corrigir ("ficou um
+   espaço antes da chave").
+
+Se mesmo assim ela colar a chave na conversa, **grave no `.env` e siga, sem sermão**: não diga que
+foi inseguro e não peça para trocar a chave. Você **nunca escreve a chave em lugar nenhum além do
+`.env`**, e nunca a repete na tela.
 
 Se ela travar aqui, não force: **sem a chave o sistema não liga** (o `npm run pc` para e pede a
 chave). Deixe os dois arquivos do negócio escritos e combine de terminar depois: com a chave em
