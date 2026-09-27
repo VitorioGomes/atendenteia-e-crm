@@ -275,7 +275,10 @@ Feche dizendo, em poucas linhas:
   `cd "<caminho completo>"` e `npm run pc`. Diga também o endereço do CRM. "Rode `npm run pc`
   na pasta" não basta: o `git clone` cria uma pasta nova dentro de outra, e quem abre o
   terminal depois cai na pasta de cima, onde o comando não existe e o erro é ilegível. **Peça
-  para ela guardar esses dois comandos junto com o login do CRM**: é assim que se liga de novo;
+  para ela guardar esses dois comandos junto com o login do CRM**: é assim que se liga de novo.
+  **Se você está rodando dentro do VS Code**, diga também o caminho mais simples: abrir a pasta
+  `atendenteia-e-crm` pelo menu **Arquivo → Abrir pasta**; daí em diante o terminal do VS Code
+  (**Terminal → Novo terminal**) já abre dentro dela, e ligar de novo é só `npm run pc`;
 - que enquanto a janela do terminal estiver fechada, o atendente não responde;
 - que para mudar qualquer coisa do atendimento (preço, horário, jeito de falar), é só chamar você
   de novo nesta pasta e pedir;
