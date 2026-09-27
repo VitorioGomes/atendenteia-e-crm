@@ -10,34 +10,29 @@ o mesmo sistema sobe para um servidor.
 
 ## Como instalar
 
-Você não vai digitar comandos nem editar arquivo de configuração. Quem faz isso é uma IA de
-terminal, que te entrevista sobre o seu negócio e configura tudo.
+Você não precisa saber comandos nem editar arquivo de configuração. Quem faz isso é uma IA de
+terminal, que te entrevista sobre o seu negócio e configura tudo. A única coisa que você digita
+no terminal é o nome da IA, para abri-la; o resto é conversa.
 
-**1. Instale o Node.js** — <https://nodejs.org>, a opção **LTS**. Depois feche o terminal e abra
-de novo.
+**1. Instale o Node.js e o Git** — <https://nodejs.org> (a opção **LTS**) e <https://git-scm.com>
+(pode aceitar tudo como vier). Depois feche o terminal e abra de novo.
 
 **2. Instale uma IA de terminal**, qualquer uma das três:
 
-| Ferramenta | Custo |
-|---|---|
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | gratuita |
-| [Codex](https://developers.openai.com/codex/cli/) | incluída em planos da OpenAI |
-| [Claude Code](https://claude.com/claude-code) | assinatura paga |
+| Ferramenta | Custo | Para abrir, digite no terminal |
+|---|---|---|
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | gratuita | `gemini` |
+| [Codex](https://developers.openai.com/codex/cli/) | incluída em planos da OpenAI | `codex` |
+| [Claude Code](https://claude.com/claude-code) | assinatura paga | `claude` |
 
-**3. Baixe este projeto e abra a IA dentro da pasta:**
+**3. Abra a IA e mande esta mensagem.** Abra o terminal na pasta onde quer guardar o sistema
+(Documentos, por exemplo), abra a IA e copie e cole:
 
-```bash
-git clone https://github.com/VitorioGomes/atendenteia-e-crm.git
-cd atendenteia-e-crm
-```
+> Clone o repositório https://github.com/VitorioGomes/atendenteia-e-crm e instale o atendente
+> seguindo o roteiro em skill/INSTALAR.md.
 
-**4. Peça para ela instalar.** Abra a IA de terminal nessa pasta e diga:
-
-> Instale o atendente seguindo o roteiro.
-
-Ela lê o roteiro em [`skill/INSTALAR.md`](skill/INSTALAR.md), te faz algumas perguntas sobre o
-negócio e coloca o sistema no ar. Leva algo entre 15 e 30 minutos, quase tudo respondendo
-pergunta.
+Ela baixa o projeto, lê o roteiro, te faz algumas perguntas sobre o negócio e coloca o sistema no
+ar. Leva algo entre 15 e 30 minutos, quase tudo respondendo pergunta.
 
 ---
 
@@ -82,21 +77,19 @@ pergunta.
 
 ## Depois de instalado
 
-Para ligar de novo, abra o terminal e entre na pasta do projeto, a `atendenteia-e-crm`
-(não a pasta onde você a baixou):
+Para ligar de novo, use os dois comandos que a IA te entrega no fim da instalação, já com o
+caminho completo da pasta: é copiar e colar no terminal. Guarde-os junto com o login do CRM.
 
-```bash
-cd atendenteia-e-crm
-npm run pc
-```
+Se perder os comandos, abra a IA de terminal na mesma pasta de antes e peça:
 
-A IA de terminal te diz o caminho completo no fim da instalação. Se aparecer
-`Could not read package.json`, o terminal está na pasta errada: é só fazer o `cd` acima.
+> Ligue o atendente que está na pasta atendenteia-e-crm (é o comando npm run pc, dentro dela).
+
+Se aparecer `Could not read package.json`, o terminal está na pasta errada.
 
 Enquanto essa janela estiver aberta, o atendente responde. Fechou, parou.
 
-Para mudar qualquer coisa — preço, horário, jeito de falar — abra a IA de terminal na pasta e
-peça. Ela sabe onde mexer.
+Para mudar qualquer coisa — preço, horário, jeito de falar — abra a IA de terminal e peça. Ela
+sabe onde mexer.
 
 ---
 

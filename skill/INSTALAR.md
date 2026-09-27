@@ -8,7 +8,23 @@ ferramenta em que você está rodando, siga o caminho alternativo que o próprio
 
 ---
 
-## Antes de tudo: isto já foi instalado?
+## Antes de tudo: onde você está
+
+O jeito recomendado de começar é a pessoa abrir você numa pasta qualquer (Documentos, por exemplo)
+e mandar: *"Clone o repositório https://github.com/VitorioGomes/atendenteia-e-crm e instale o
+atendente seguindo o roteiro em skill/INSTALAR.md"*. Então você pode estar **fora** do projeto.
+
+- **Já existe uma pasta `atendenteia-e-crm` aqui?** Não clone de novo: entre nela e siga. Pode ser
+  uma instalação anterior (veja a seção seguinte).
+- **Não existe:** clone com `git clone https://github.com/VitorioGomes/atendenteia-e-crm.git`.
+- **O `git` não existe no computador** (erro "git não é reconhecido"): peça para a pessoa instalar
+  em <https://git-scm.com>, aceitando tudo como vier, fechar o terminal, abrir de novo e chamar
+  você. Não baixe o projeto como zip para contornar: sem o `git`, ela não recebe atualização.
+- **A partir daqui, todo comando roda dentro de `atendenteia-e-crm`.** Se a sua ferramenta não
+  guarda a pasta entre um comando e outro, entre nela em cada comando. Rodar `npm run pc` na pasta
+  de cima dá o erro `Could not read package.json`.
+
+## Isto já foi instalado?
 
 Se `sistema/negocio/negocio.json` **já existe**, a pessoa não está instalando: está voltando para
 ajustar alguma coisa.
@@ -258,7 +274,9 @@ Feche dizendo, em poucas linhas:
   (descubra com `pwd` ou `cd`, nunca de memória), e os dois comandos prontos para copiar:
   `cd "<caminho completo>"` e `npm run pc`. Diga também o endereço do CRM. "Rode `npm run pc`
   na pasta" não basta: o `git clone` cria uma pasta nova dentro de outra, e quem abre o
-  terminal depois cai na pasta de cima, onde o comando não existe e o erro é ilegível;
+  terminal depois cai na pasta de cima, onde o comando não existe e o erro é ilegível. **Peça
+  para ela guardar esses dois comandos junto com o login do CRM**: o README do projeto diz que
+  é assim que se liga de novo;
 - que enquanto a janela do terminal estiver fechada, o atendente não responde;
 - que para mudar qualquer coisa do atendimento (preço, horário, jeito de falar), é só chamar você
   de novo nesta pasta e pedir;
