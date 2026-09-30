@@ -292,7 +292,12 @@ export function montarPromptEstavel(config: ConfigNegocio): string {
         "Quando passar para um humano",
         negocio.handoff.gatilhos.map((g) => `- ${g}`).join("\n") +
           "\n\nNesses casos chame transferir_humano e mande uma mensagem curta avisando. " +
-          "Depois disso, pare de responder.",
+          "Depois disso, pare de responder.\n" +
+          // Teste 3 (27/09/2026): "tem desconto a vista?" era gatilho, o conhecimento dizia
+          // que nao havia desconto, e a IA respondeu sozinha em vez de chamar o dono.
+          "Vale MESMO QUE voce saiba a resposta, ou que ela esteja no seu conhecimento: se a " +
+          "mensagem se encaixa num destes casos, o dono quer tratar pessoalmente. Nao responda " +
+          "o assunto antes de transferir, nem para dizer que nao pode.",
       ),
     );
   }
@@ -350,14 +355,16 @@ export function montarPromptEstavel(config: ConfigNegocio): string {
     bloco(
       "Regra anti-invencao",
       "Voce so pode afirmar o que esta neste prompt ou no seu conhecimento abaixo.\n" +
-        "Se perguntarem algo que voce nao sabe, NAO chute e NAO invente. Diga que vai confirmar " +
-        "com a equipe e chame transferir_humano.\n" +
+        "Se perguntarem algo que voce nao sabe, NAO chute e NAO invente. Chame avisar_equipe " +
+        "com a pergunta e diga que vai confirmar com a equipe. Nunca diga que vai confirmar sem " +
+        "chamar a ferramenta: sem ela ninguem fica sabendo e a pessoa espera um retorno que nao " +
+        "vem. Depois siga atendendo normalmente o resto da conversa.\n" +
         "Isso vale principalmente para preco, prazo, disponibilidade, convenio e garantia.\n" +
         "Vale tambem para REGRA do negocio: se perguntarem se pode ou nao pode alguma coisa " +
         "(deixar o animal o dia todo, levar acompanhante, trocar em cima da hora) e a " +
         "resposta nao esta escrita aqui, NAO responda com o que parece razoavel. Uma " +
-        "resposta que soa certa e o que mais engana, porque ninguem desconfia dela. Diga " +
-        "que vai confirmar com a equipe e chame transferir_humano.",
+        "resposta que soa certa e o que mais engana, porque ninguem desconfia dela. Chame " +
+        "avisar_equipe e diga que vai confirmar com a equipe.",
     ),
   );
 
@@ -418,7 +425,16 @@ export function montarPromptDinamico(config: ConfigNegocio, lead: EstadoDoLead):
   }
 
   if (lead.tags.length) linhas.push(`Tags: ${lead.tags.join(", ")}`);
-  if (lead.resumo) linhas.push(`\nResumo da relacao ate agora: ${lead.resumo}`);
+  if (lead.resumo) {
+    linhas.push(`\nResumo da relacao ate agora: ${lead.resumo}`);
+  } else {
+    // Teste 3 (27/09/2026): o resumo so apareceu no fim, e o card passou a conversa
+    // vazio. Lembrar a cada rodada, enquanto ele nao existir, e o que segura isso.
+    linhas.push(
+      "\nO CRM ainda NAO tem resumo desta pessoa. Assim que ela disser qualquer coisa sobre o " +
+        "que quer, chame atualizar_lead com um resumo, mesmo curto.",
+    );
+  }
 
   if (lead.agendamentoAtual) {
     linhas.push(
@@ -473,8 +489,10 @@ export function montarPromptDinamico(config: ConfigNegocio, lead: EstadoDoLead):
   linhas.push(
     "",
     "## Antes de responder",
-    "1. Registre no CRM tudo que voce aprendeu nesta rodada (atualizar_lead, mover_estagio).",
-    "2. Atualize o resumo com registrar_resumo sempre que algo relevante mudar.",
+    "1. Se a pessoa disse algo novo sobre ela (quem e, o que quer, pressa, orcamento, uma",
+    "   decisao), chame atualizar_lead NESTA resposta, com o dado e o resumo atualizado.",
+    "   Nao deixe para depois: quem abre o CRM no meio da conversa precisa ver o que ja se sabe.",
+    "2. Se a conversa atingiu a condicao de outro estagio, chame mover_estagio.",
     "3. So entao escreva a resposta para a pessoa.",
     "",
     "Sua resposta em texto vai direto pro WhatsApp da pessoa, exatamente como voce escrever. " +

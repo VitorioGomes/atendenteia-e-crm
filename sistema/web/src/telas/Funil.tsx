@@ -377,7 +377,13 @@ function CartaoLead({
         </strong>
         {cartao.valor != null && <span className="valor-cartao">{moeda(cartao.valor)}</span>}
       </div>
-      {cartao.resumo && <p className="resumo">{cartao.resumo}</p>}
+      {/* Sem resumo da IA ainda, uma frase do sistema com o que ja se sabe ("Lead novo",
+          "Qualificando: gestor de trafego"), mais apagada. Card vazio parecia quebrado. */}
+      {cartao.resumo ? (
+        <p className="resumo">{cartao.resumo}</p>
+      ) : (
+        cartao.resumoProvisorio && <p className="resumo provisorio">{cartao.resumoProvisorio}</p>
+      )}
 
       <div className="rodape-cartao">
         <span className="selo-com-dica" title={comVoce ? "Atendendo: você" : "Atendendo: IA"}>

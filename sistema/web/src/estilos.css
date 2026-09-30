@@ -6254,3 +6254,9 @@ input.texto-editavel {
     opacity: 1;
   }
 }
+
+/* Frase provisoria do card, enquanto a IA nao escreveu o resumo (teste 3, 27/09/2026).
+   Mesmo lugar e tamanho do resumo, tinta mais fraca: e o sistema, nao a IA, falando. */
+.cartao .resumo.provisorio {
+  color: var(--tinta-fraca);
+}

@@ -125,13 +125,18 @@ Assuntos que sempre valem a pena, porque são os que o cliente pergunta:
 - as cinco dúvidas que mais aparecem no WhatsApp hoje — pergunte isso diretamente, é ouro;
 - o que **não** fazem, para o atendente não prometer.
 
-Duas regras:
+Três regras:
 
 1. **Só entra o que é verdade agora.** O atendente não inventa nada fora deste arquivo: ele diz
-   que vai confirmar com a equipe e passa a conversa. Isso é proposital. Um arquivo curto e certo
-   é muito melhor que um longo e desatualizado.
+   que vai confirmar com a equipe e avisa o time da pergunta. Isso é proposital. Um arquivo curto
+   e certo é muito melhor que um longo e desatualizado.
 2. **Preço aqui é preço que o cliente vai cobrar.** Se houver dúvida, escreva "a partir de" ou
    deixe fora e confie no `servicos`.
+3. **Assunto que é motivo de chamar a equipe não ganha resposta aqui.** Se desconto,
+   parcelamento diferente ou compra para empresa estão em `handoff.gatilhos`, não escreva "não
+   tem desconto" no conhecimento. No teste de 27/09/2026 o arquivo dizia "desconto: não existe
+   aqui, chame o time", o atendente leu a resposta pronta, respondeu sozinho e não chamou
+   ninguém. Escreva só que esse assunto é tratado pela equipe.
 
 ---
 

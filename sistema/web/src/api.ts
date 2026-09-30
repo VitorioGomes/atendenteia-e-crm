@@ -71,6 +71,8 @@ export interface Cartao {
   telefone: string;
   telefoneFormatado: string;
   resumo: string | null;
+  /** Frase montada pelo sistema enquanto a IA nao escreveu o resumo (teste 3). */
+  resumoProvisorio?: string | null;
   proximoPasso: string | null;
   valor: number | null;
   tags: string[];

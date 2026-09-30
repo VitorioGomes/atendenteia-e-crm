@@ -25,6 +25,7 @@ import { exigirLogin } from "./api.js";
 import { SELECAO_MENSAGEM, mensagemParaTela } from "./mensagem.js";
 import { filtroPrecisaDeVoce } from "./conversas.js";
 import { precisaDeVoce } from "../crm/atencao.js";
+import { resumoProvisorio } from "../crm/resumo-provisorio.js";
 
 /**
  * API do CRM.
@@ -106,23 +107,33 @@ export async function rotasCrm(app: FastifyInstance): Promise<void> {
    */
   const LIMITE_POR_ESTAGIO = 60;
 
-  const INCLUIR_CONVERSA = {
-    contact: {
-      include: {
-        conversations: {
-          orderBy: { createdAt: "desc" },
+  // Funcao, e nao constante: o "de agora em diante" dos compromissos precisa ser o agora
+  // de cada pedido, nao o da hora em que o servidor ligou.
+  const incluirNoCard = () =>
+    ({
+        // Proximo compromisso: entra no mini-resumo do card (resumo-provisorio.ts).
+        appointments: {
+          where: { status: { in: ["SCHEDULED", "CONFIRMED"] }, scheduledAt: { gte: new Date() } },
+          orderBy: { scheduledAt: "asc" },
           take: 1,
-          select: {
-            id: true,
-            mode: true,
-            botPausedUntil: true,
-            lastInboundAt: true,
-            lastOutboundAt: true,
+          select: { service: true, scheduledAt: true },
+        },
+        contact: {
+          include: {
+            conversations: {
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              select: {
+                id: true,
+                mode: true,
+                botPausedUntil: true,
+                lastInboundAt: true,
+                lastOutboundAt: true,
+              },
+            },
           },
         },
-      },
-    },
-  } as const;
+    }) satisfies Prisma.DealInclude;
 
   app.get("/api/funil", async () => {
     const estagios = await db.stage.findMany({ orderBy: { position: "asc" } });
@@ -136,7 +147,7 @@ export async function rotasCrm(app: FastifyInstance): Promise<void> {
             where: { stageId: estagio.id },
             orderBy: { updatedAt: "desc" },
             take: LIMITE_POR_ESTAGIO,
-            include: INCLUIR_CONVERSA,
+            include: incluirNoCard(),
           }),
           db.deal.count({ where: { stageId: estagio.id } }),
         ]);
@@ -145,6 +156,15 @@ export async function rotasCrm(app: FastifyInstance): Promise<void> {
     );
 
     const agora = new Date();
+    const primeiroEstagioId = estagios[0]?.id;
+    const nomeDoEstagio = new Map(estagios.map((e) => [e.id, e.name]));
+    const estagioDoCard = (id: string) => nomeDoEstagio.get(id) ?? "Em andamento";
+    // Campos configurados primeiro, na ordem da configuracao; o resto que a IA coletou depois.
+    const configurados = getNegocio().negocio.camposExtras.map((c) => c.chave);
+    const ordemDosCampos = (campos: Record<string, unknown>) => [
+      ...configurados.filter((c) => c in campos),
+      ...Object.keys(campos).filter((c) => !configurados.includes(c)),
+    ];
     // O estagio de agendado mora na configuracao, nao no banco. A coluna dele ganha
     // icone proprio: e onde o atendente entrega o resultado.
     const chavesDeAgendado = new Set(
@@ -167,6 +187,8 @@ export async function rotasCrm(app: FastifyInstance): Promise<void> {
           // da barra lateral (crm/atencao.ts). Antes bastava a mensagem estar sem
           // resposta, e todo card acendia nos segundos em que a IA ainda digitava.
           const aguardando = conversa ? precisaDeVoce(conversa, agora) : false;
+          const campos = (n.contact.fields ?? {}) as Record<string, unknown>;
+          const proximo = n.appointments[0];
 
           return {
             id: n.id,
@@ -176,6 +198,18 @@ export async function rotasCrm(app: FastifyInstance): Promise<void> {
             telefone: n.contact.phone,
             telefoneFormatado: formatarTelefone(n.contact.phone),
             resumo: n.summary,
+            // Enquanto a IA nao escreveu o resumo, o card mostra esta frase (teste 3).
+            resumoProvisorio: n.summary
+              ? null
+              : resumoProvisorio({
+                  estagioNome: estagioDoCard(n.stageId),
+                  primeiroEstagio: n.stageId === primeiroEstagioId,
+                  temMensagem: Boolean(conversa?.lastInboundAt),
+                  campos: ordemDosCampos(campos).map((chave) => campos[chave] as string | null),
+                  etiquetas: lerEtiquetas(n.contact.tags),
+                  agendamento: proximo ? { servico: proximo.service, quando: proximo.scheduledAt } : null,
+                  timezone: getNegocio().negocio.horarios.timezone,
+                }),
             proximoPasso: n.nextStep,
             valor: dinheiro(n.valueCents),
             tags: lerEtiquetas(n.contact.tags),

@@ -45,3 +45,44 @@ export function textoDoAviso(dados: {
   );
   return linhas.join("\n");
 }
+
+/**
+ * Pergunta que a IA nao soube responder, sem parar o atendimento (teste 3, 27/09/2026).
+ * A IA dizia "vou confirmar com o time e ja te retorno" e ninguem ficava sabendo: o
+ * cliente esperava um retorno que nao vinha. Agora o time recebe a pergunta e a IA
+ * segue conversando sobre o resto. Decisao do dono: avisar e continuar, nao transferir.
+ */
+export function textoDaPergunta(dados: {
+  atendente: string;
+  cliente: string | null;
+  telefone: string;
+  pergunta: string;
+}): string {
+  const quem = dados.cliente
+    ? `${dados.cliente}, ${formatarTelefone(dados.telefone)}`
+    : formatarTelefone(dados.telefone);
+  return [
+    `${dados.atendente} não soube responder uma pergunta e disse que o time vai confirmar.`,
+    "",
+    `Cliente: ${quem}`,
+    `Pergunta: ${dados.pergunta}`,
+    "",
+    "A IA continua atendendo essa pessoa. Responda a pergunta pelo CRM, em Conversas, ou pelo WhatsApp do atendimento.",
+  ].join("\n");
+}
+
+/**
+ * A IA prometeu confirmar com o time? E a rede de seguranca do teste 3: a instrucao
+ * mandava chamar a ferramenta junto com a promessa, e ela fez so a metade. Se o texto
+ * que vai para o cliente promete um retorno do time e nenhuma ferramenta avisou
+ * ninguem, o proprio sistema avisa.
+ */
+export function prometeuRetornoDoTime(texto: string): boolean {
+  const simples = texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
+  const verbos = ["confirmar", "confirmo", "verificar", "verifico", "checar", "consultar", "perguntar"];
+  const quem = ["com o time", "com a equipe", "com o pessoal", "com o responsavel", "com a dona", "com o dono"];
+  return verbos.some((v) => quem.some((q) => simples.includes(`${v} ${q}`) || simples.includes(`${v} isso ${q}`)));
+}

@@ -246,7 +246,8 @@ const CARTOES: CartaoDemo[] = [
     estagioId: "e1",
     nome: "Marcos Vinícius",
     telefone: "5511993334444",
-    resumo: "Perguntou sobre clareamento. Ainda não respondeu à primeira pergunta.",
+    // Sem resumo de proposito: mostra a frase provisoria do card (teste 3, 27/09/2026).
+    resumo: null,
     atualizadoEm: minutos(2),
     ultimoContatoEm: minutos(3),
     mensagens: [
@@ -612,7 +613,11 @@ export const apiDemo = {
       estagios: ESTAGIOS.map((e) => {
         const cards = estado.cartoes
           .filter((c) => c.estagioId === e.id)
-          .map((c) => ({ ...c, aguardandoResposta: precisaDeVoceDemo(c) })) as Cartao[];
+          .map((c) => ({
+            ...c,
+            aguardandoResposta: precisaDeVoceDemo(c),
+            resumoProvisorio: c.resumo ? null : "Lead novo, começou a conversa",
+          })) as Cartao[];
         return { ...e, total: cards.length, cards };
       }),
     }),

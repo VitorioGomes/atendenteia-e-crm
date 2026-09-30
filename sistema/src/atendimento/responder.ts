@@ -7,8 +7,13 @@ import type { EstadoDoLead } from "../agente/prompt.js";
 import { db } from "../lib/db.js";
 import { logger } from "../lib/logger.js";
 import { lerEtiquetas } from "../lib/estados.js";
-import { enviarTexto, marcarDigitando } from "../whatsapp/conexao.js";
-import { numeroDoAviso, textoDoAviso } from "./aviso-equipe.js";
+import { enviarTexto, marcarComoLida, marcarDigitando } from "../whatsapp/conexao.js";
+import {
+  numeroDoAviso,
+  prometeuRetornoDoTime,
+  textoDaPergunta,
+  textoDoAviso,
+} from "./aviso-equipe.js";
 import { agendarFollowup, cancelarFollowup } from "./followup.js";
 
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -119,11 +124,35 @@ async function avisarEquipe(
   config: ReturnType<typeof getNegocio>,
   dados: { cliente: string | null; telefone: string; motivo: string | null },
 ): Promise<void> {
+  await mandarAviso(
+    config,
+    dados.telefone,
+    textoDoAviso({ atendente: config.negocio.atendente.nome, ...dados }),
+  );
+}
+
+/** Pergunta pendente: o time fica sabendo e a IA segue atendendo (teste 3). */
+async function avisarPergunta(
+  config: ReturnType<typeof getNegocio>,
+  dados: { cliente: string | null; telefone: string; pergunta: string },
+): Promise<void> {
+  await mandarAviso(
+    config,
+    dados.telefone,
+    textoDaPergunta({ atendente: config.negocio.atendente.nome, ...dados }),
+  );
+}
+
+async function mandarAviso(
+  config: ReturnType<typeof getNegocio>,
+  telefoneDoCliente: string,
+  texto: string,
+): Promise<void> {
   const numero = numeroDoAviso(config.negocio.handoff.avisarNoWhatsapp);
   if (!numero) return;
   try {
-    await enviarTexto(numero, textoDoAviso({ atendente: config.negocio.atendente.nome, ...dados }));
-    logger.info({ telefone: dados.telefone }, "equipe avisada no WhatsApp");
+    await enviarTexto(numero, texto);
+    logger.info({ telefone: telefoneDoCliente }, "equipe avisada no WhatsApp");
   } catch (e) {
     // O aviso nao pode derrubar o atendimento: a conversa ja esta marcada no CRM.
     logger.error({ err: e }, "falha ao avisar a equipe no WhatsApp");
@@ -136,6 +165,11 @@ export async function enviarResposta(
   texto: string,
 ): Promise<void> {
   const mensagens = quebrarEmMensagens(tirarPerguntaDeCortesia(texto));
+
+  // Quem vai responder e a IA: a mensagem da pessoa aparece como lida (dois tracos
+  // azuis). Conectado como "nao online", o WhatsApp so confirmava com um traco, e para
+  // quem escreveu parecia que nada tinha chegado (teste 3, 27/09/2026).
+  await marcarComoLida(telefone);
 
   for (const [indice, mensagem] of mensagens.entries()) {
     const espera = tempoDeDigitacao(mensagem);
@@ -260,12 +294,39 @@ export async function processarConversa(
     await enviarResposta(conversaId, conversa.contact.phone, resultado.texto);
   } finally {
     // Mesmo se a resposta ao cliente falhar, quem atende precisa saber que foi chamado.
+    const cliente = conversa.contact.name ?? nomeDoPerfil(conversa.contact.pushName);
     if (resultado.efeitos.transferiuParaHumano) {
       await avisarEquipe(config, {
-        cliente: conversa.contact.name ?? nomeDoPerfil(conversa.contact.pushName),
+        cliente,
         telefone: conversa.contact.phone,
         motivo: resultado.efeitos.motivoTransferencia,
       });
+    }
+
+    const perguntas = [...resultado.efeitos.perguntasParaEquipe];
+    // Rede de seguranca: prometeu um retorno do time e nao avisou ninguem. A pergunta e
+    // a ultima coisa que a pessoa escreveu, que e o que o time precisa ler.
+    if (
+      !perguntas.length &&
+      !resultado.efeitos.transferiuParaHumano &&
+      prometeuRetornoDoTime(resultado.texto)
+    ) {
+      const ultima = await db.message.findFirst({
+        where: { conversationId: conversaId, direction: "IN" },
+        orderBy: { createdAt: "desc" },
+        select: { text: true, transcript: true },
+      });
+      const pergunta = (ultima?.transcript ?? ultima?.text ?? "").trim();
+      if (pergunta) {
+        perguntas.push(pergunta);
+        await db.dealEvent.create({
+          data: { dealId: negocio.id, type: "question", body: `Pergunta para a equipe: ${pergunta}`, author: "ia" },
+        });
+        logger.warn({ conversaId }, "a IA prometeu confirmar com o time sem avisar; o sistema avisou");
+      }
+    }
+    for (const pergunta of perguntas) {
+      await avisarPergunta(config, { cliente, telefone: conversa.contact.phone, pergunta });
     }
   }
 

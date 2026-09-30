@@ -9,6 +9,7 @@ import makeWASocket, {
   useMultiFileAuthState,
   type AnyMessageContent,
   type WAMessage,
+  type WAMessageKey,
   type WASocket,
 } from "baileys";
 import QRCode from "qrcode";
@@ -354,6 +355,9 @@ async function tratarMensagem(bruta: WAMessage): Promise<void> {
     return;
   }
 
+  // Guarda a chave para marcar como lida quando a IA responder (marcarComoLida).
+  if (!mensagem.daEquipe && bruta.key) guardarParaLer(mensagem.telefone, bruta.key);
+
   // Baixa aqui, uma vez, enquanto a mensagem ainda esta fresca: a chave de midia
   // expira. O audio precisa do conteudo para transcrever; foto, video e documento,
   // para aparecer na caixa de entrada.
@@ -383,6 +387,43 @@ async function baixarMidia(bruta: WAMessage): Promise<string | null> {
   } catch (e) {
     registro.warn({ err: e }, "nao consegui baixar a midia da mensagem");
     return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Leitura
+// ---------------------------------------------------------------------------
+
+/**
+ * Mensagens recebidas e ainda nao marcadas como lidas, por telefone.
+ *
+ * O sistema conecta como "nao online" (markOnlineOnConnect: false), e nesse modo o
+ * Baileys confirma o recebimento como "inativo": para quem escreveu, fica um traco so
+ * ate o celular do chip ficar online. Parecia que a mensagem nao chegava, com a IA
+ * respondendo (teste 3, 27/09/2026). Quando a IA vai responder, marcamos como lida.
+ * Conversa com a equipe nao passa por aqui, entao continua nao lida no celular do dono.
+ * Fica em memoria: reiniciar perde as pendentes, o que so deixa uma mensagem sem o azul.
+ */
+const paraLer = new Map<string, WAMessageKey[]>();
+const MAX_PARA_LER = 20;
+
+function guardarParaLer(telefone: string, chave: WAMessageKey): void {
+  const numero = normalizarTelefone(telefone);
+  const lista = paraLer.get(numero) ?? [];
+  lista.push(chave);
+  paraLer.set(numero, lista.slice(-MAX_PARA_LER));
+}
+
+export async function marcarComoLida(telefone: string): Promise<void> {
+  const numero = normalizarTelefone(telefone);
+  const chaves = paraLer.get(numero);
+  if (!chaves?.length || !socket || estado !== "open") return;
+  paraLer.delete(numero);
+  try {
+    await socket.readMessages(chaves);
+  } catch (e) {
+    // Nao marcar como lida nunca pode impedir a resposta de sair.
+    registro.debug({ err: e }, "nao consegui marcar a mensagem como lida");
   }
 }
 

@@ -39,6 +39,8 @@ export interface Efeitos {
   agendou: boolean;
   cancelouAgendamento: boolean;
   estagioNovo: string | null;
+  /** Perguntas que a IA nao soube responder e que o time precisa confirmar (avisar_equipe). */
+  perguntasParaEquipe: string[];
 }
 
 export function novosEfeitos(): Efeitos {
@@ -48,6 +50,7 @@ export function novosEfeitos(): Efeitos {
     agendou: false,
     cancelouAgendamento: false,
     estagioNovo: null,
+    perguntasParaEquipe: [],
   };
 }
 
@@ -104,6 +107,19 @@ export function definirFerramentas(config: ConfigNegocio): Anthropic.Tool[] {
       input_schema: {
         type: "object",
         properties: {
+          // O resumo vai junto, e e obrigatorio (teste 3, 27/09/2026): como ferramenta a
+          // parte, registrar_resumo so foi chamada no fim da conversa, e o card passou a
+          // conversa inteira sem descricao. atualizar_lead a IA chama com confianca.
+          resumo: {
+            type: "string",
+            description:
+              "Resumo atualizado da pessoa em 1 a 3 frases, para quem vai ler o CRM: quem e, " +
+              "o que quer, o que ja foi combinado e o que ficou pendente. Substitui o anterior.",
+          },
+          proximo_passo: {
+            type: "string",
+            description: "O que precisa acontecer agora, ex.: 'confirmar horario de quinta'.",
+          },
           nome: { type: "string", description: "Primeiro nome ou nome completo da pessoa." },
           email: { type: "string" },
           campos: {
@@ -129,6 +145,7 @@ export function definirFerramentas(config: ConfigNegocio): Anthropic.Tool[] {
               }
             : {}),
         },
+        required: ["resumo"],
       },
     },
     {
@@ -165,10 +182,30 @@ export function definirFerramentas(config: ConfigNegocio): Anthropic.Tool[] {
       },
     },
     {
+      name: "avisar_equipe",
+      description:
+        "Avisa a equipe, no WhatsApp dela, de uma pergunta que voce nao sabe responder, SEM " +
+        "parar o atendimento: voce continua conversando com a pessoa sobre o resto. Use quando " +
+        "a pessoa perguntar algo que nao esta no seu conhecimento (ex.: 'precisa ter CNPJ?'). " +
+        "Sempre que voce disser que vai confirmar com a equipe, chame esta ferramenta na mesma " +
+        "resposta: prometer um retorno sem avisar ninguem deixa a pessoa esperando para sempre.",
+      input_schema: {
+        type: "object",
+        properties: {
+          pergunta: {
+            type: "string",
+            description: "A pergunta da pessoa, curta e clara, como a equipe vai ler.",
+          },
+        },
+        required: ["pergunta"],
+      },
+    },
+    {
       name: "transferir_humano",
       description:
         "Passa a conversa para uma pessoa da equipe e faz voce parar de responder. " +
-        "Use quando nao souber responder com seguranca ou nos casos previstos nas suas regras.",
+        "Use nos casos previstos em 'Quando passar para um humano', mesmo que voce saiba a " +
+        "resposta. Para uma duvida que voce so nao sabe responder, use avisar_equipe.",
       input_schema: {
         type: "object",
         properties: {
@@ -283,6 +320,8 @@ export function definirFerramentas(config: ConfigNegocio): Anthropic.Tool[] {
 // ---------------------------------------------------------------------------
 
 const EsquemaAtualizarLead = z.object({
+  resumo: z.string().optional(),
+  proximo_passo: z.string().optional(),
   nome: z.string().optional(),
   email: z.string().optional(),
   campos: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
@@ -292,6 +331,7 @@ const EsquemaAtualizarLead = z.object({
 const EsquemaMoverEstagio = z.object({ estagio: z.string(), motivo: z.string() });
 const EsquemaResumo = z.object({ resumo: z.string(), proximo_passo: z.string().optional() });
 const EsquemaTransferir = z.object({ motivo: z.string() });
+const EsquemaPergunta = z.object({ pergunta: z.string() });
 const EsquemaConsultar = z.object({
   dia: z.string().optional(),
   periodo: z.enum(["manha", "tarde", "noite"]).optional(),
@@ -321,6 +361,8 @@ export async function executarFerramenta(
         return await registrarResumo(EsquemaResumo.parse(entrada), ctx);
       case "transferir_humano":
         return await transferirHumano(EsquemaTransferir.parse(entrada), ctx, efeitos);
+      case "avisar_equipe":
+        return await registrarPergunta(EsquemaPergunta.parse(entrada), ctx, efeitos);
       case "consultar_horarios":
         return await consultarHorarios(EsquemaConsultar.parse(entrada), ctx);
       case "agendar":
@@ -435,7 +477,13 @@ async function atualizarLead(
     });
   }
 
+  const temResumo = ehValorUtil(dados.resumo);
+  if (temResumo) {
+    await registrarResumo({ resumo: dados.resumo!.trim(), proximo_passo: dados.proximo_passo }, ctx);
+  }
+
   const registrados = [
+    temResumo && "resumo",
     nome && `nome=${nome}`,
     email && `email=${email}`,
     ...Object.entries(camposLimpos).map(([k, v]) => `${k}=${v}`),
@@ -523,6 +571,32 @@ async function registrarResumo(
     }),
   ]);
   return "Resumo atualizado no CRM.";
+}
+
+async function registrarPergunta(
+  dados: z.infer<typeof EsquemaPergunta>,
+  ctx: ContextoFerramentas,
+  efeitos: Efeitos,
+): Promise<string> {
+  const pergunta = dados.pergunta.trim();
+  if (!pergunta) return "Escreva a pergunta da pessoa para eu avisar a equipe.";
+
+  // Fica na atividade do lead, para quem abrir o card ver o que esta pendente. Quem
+  // manda o aviso no WhatsApp e o responder, depois que a resposta ao cliente sai.
+  await db.dealEvent.create({
+    data: {
+      dealId: ctx.negocioId,
+      type: "question",
+      body: `Pergunta para a equipe: ${pergunta}`,
+      author: "ia",
+    },
+  });
+  efeitos.perguntasParaEquipe.push(pergunta);
+
+  return (
+    "A equipe vai receber a pergunta no WhatsApp. Diga a pessoa, numa frase, que vai " +
+    "confirmar com a equipe, e siga a conversa normalmente. Nao pare de atender."
+  );
 }
 
 async function transferirHumano(
