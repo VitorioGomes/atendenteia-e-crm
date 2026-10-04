@@ -7,7 +7,12 @@ import type { EstadoDoLead } from "../agente/prompt.js";
 import { db } from "../lib/db.js";
 import { logger } from "../lib/logger.js";
 import { lerEtiquetas } from "../lib/estados.js";
-import { enviarTexto, marcarComoLida, marcarDigitando } from "../whatsapp/conexao.js";
+import {
+  enviarTexto,
+  enviarTextoParaNumero,
+  marcarComoLida,
+  marcarDigitando,
+} from "../whatsapp/conexao.js";
 import {
   numeroDoAviso,
   prometeuRetornoDoTime,
@@ -151,7 +156,7 @@ async function mandarAviso(
   const numero = numeroDoAviso(config.negocio.handoff.avisarNoWhatsapp);
   if (!numero) return;
   try {
-    await enviarTexto(numero, texto);
+    await enviarTextoParaNumero(numero, texto);
     logger.info({ telefone: telefoneDoCliente }, "equipe avisada no WhatsApp");
   } catch (e) {
     // O aviso nao pode derrubar o atendimento: a conversa ja esta marcada no CRM.

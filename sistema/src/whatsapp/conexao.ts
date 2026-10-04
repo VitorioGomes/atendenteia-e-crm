@@ -16,7 +16,7 @@ import QRCode from "qrcode";
 import { logger } from "../lib/logger.js";
 import { LIMITE_BYTES } from "../lib/midia.js";
 import type { TipoMensagem } from "../lib/estados.js";
-import { jidParaTelefone, normalizarTelefone } from "../lib/telefone.js";
+import { jidParaTelefone, normalizarTelefone, variantesTelefone } from "../lib/telefone.js";
 import { receberMensagem } from "../atendimento/caixa-entrada.js";
 import { ehEventoDeMensagem, interpretarMensagem } from "./payload.js";
 
@@ -445,6 +445,34 @@ function exigirSocket(): WASocket {
 export async function enviarTexto(telefone: string, texto: string): Promise<{ id?: string }> {
   const enviada = await exigirSocket().sendMessage(jid(telefone), { text: texto });
   return { id: enviada?.key?.id ?? undefined };
+}
+
+/**
+ * Numero digitado por alguem (o do aviso da equipe), nao vindo do WhatsApp.
+ *
+ * Achado do reteste do teste 3 (04/10/2026): o log dizia "equipe avisada" e nada
+ * chegava. O numero estava com o 9 na frente, mas no WhatsApp ele existe sem o 9 (conta
+ * antiga, comum fora de SP). Enviar para um numero que nao existe nao da erro: a
+ * mensagem some. Por isso pergunta ao WhatsApp qual das duas formas existe, guarda a
+ * resposta e recusa se nenhuma existir.
+ */
+const jidsConferidos = new Map<string, string>();
+
+export async function enviarTextoParaNumero(telefone: string, texto: string): Promise<void> {
+  const s = exigirSocket();
+  const numero = normalizarTelefone(telefone);
+  let destino = jidsConferidos.get(numero);
+  if (!destino) {
+    const achados = await s.onWhatsApp(...variantesTelefone(numero));
+    destino = achados?.find((a) => a.exists)?.jid;
+    if (!destino) {
+      throw new Error(
+        `O numero ${numero} nao tem WhatsApp, nem com nem sem o 9. Confira o numero do aviso da equipe.`,
+      );
+    }
+    jidsConferidos.set(numero, destino);
+  }
+  await s.sendMessage(destino, { text: texto });
 }
 
 export interface MidiaParaEnviar {
