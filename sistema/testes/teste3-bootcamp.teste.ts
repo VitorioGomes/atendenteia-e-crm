@@ -4,7 +4,7 @@ import { describe, test } from "node:test";
 import { prometeuRetornoDoTime, textoDaPergunta } from "../src/atendimento/aviso-equipe.js";
 import { resumoProvisorio } from "../src/crm/resumo-provisorio.js";
 import { definirFerramentas } from "../src/agente/ferramentas.js";
-import { montarSystem } from "../src/agente/prompt.js";
+import { aberturaDaApresentacao, montarSystem } from "../src/agente/prompt.js";
 import type { EstadoDoLead } from "../src/agente/prompt.js";
 import { negocioExemplo } from "./fixtures.js";
 
@@ -151,5 +151,27 @@ describe("card vazio enquanto a IA nao escrevia o resumo", () => {
       resumoProvisorio({ ...base, agendamento: { servico: "Banho", quando: sabado } }),
       /^Banho no sábado, 03\/10 às 09:00$/,
     );
+  });
+});
+
+describe("reteste de 04/10/2026", () => {
+  test("a apresentacao vem pronta, com artigo e 'virtual'", async () => {
+    const config = await negocioExemplo();
+    const comGenero = (genero: "feminino" | "masculino" | "neutro", avisar = true) => ({
+      ...config.negocio,
+      atendente: { ...config.negocio.atendente, nome: "Bruno", genero },
+      conformidade: { ...config.negocio.conformidade, avisarQueEhIA: avisar },
+    });
+    assert.equal(aberturaDaApresentacao(comGenero("masculino")), "Oi! Sou o Bruno, assistente virtual");
+    assert.equal(aberturaDaApresentacao(comGenero("feminino")), "Oi! Sou a Bruno, assistente virtual");
+    assert.equal(aberturaDaApresentacao(comGenero("neutro")), "Oi! Aqui e Bruno, atendimento virtual");
+    assert.equal(aberturaDaApresentacao(comGenero("masculino", false)), "Oi! Sou o Bruno");
+  });
+
+  test("'quero comecar logo' nao e pedido para marcar, e o convite nao se repete", async () => {
+    const texto = montarSystem(await negocioExemplo(), lead())[0]!.text;
+    assert.match(texto, /NAO e pedido para/);
+    assert.match(texto, /Nunca escreva 'vou marcar'/);
+    assert.match(texto, /nao repita o convite em toda mensagem/);
   });
 });

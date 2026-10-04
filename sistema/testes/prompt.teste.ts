@@ -59,13 +59,14 @@ describe("prompt do atendente", () => {
       return montarSystem(c, lead()).map((b) => b.text).join("\n");
     };
 
-    assert.match(comGenero("feminino"), /uma assistente virtual/);
+    assert.match(comGenero("feminino"), /Sou a \S+, assistente virtual/);
     assert.match(comGenero("feminino"), /use o feminino/);
     const masculino = comGenero("masculino");
-    assert.match(masculino, /um assistente virtual/);
+    assert.match(masculino, /Sou o \S+, assistente virtual/);
     assert.match(masculino, /use o masculino/);
-    assert.doesNotMatch(masculino, /uma assistente virtual/);
-    assert.doesNotMatch(comGenero("neutro"), /uma assistente virtual|um assistente virtual/);
+    assert.doesNotMatch(masculino, /Sou a \S+,/);
+    assert.match(comGenero("neutro"), /atendimento virtual/);
+    assert.doesNotMatch(comGenero("neutro"), /Sou [ao] /);
   });
 
   test("o bloco estavel pede cache e o dinamico nao", async () => {

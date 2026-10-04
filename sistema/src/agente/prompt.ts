@@ -31,11 +31,16 @@ const GENERO_DA_FALA: Record<"feminino" | "masculino" | "neutro", string> = {
   neutro: 'Ao falar de voce, evite palavras com genero ("agradeco" no lugar de "obrigado").',
 };
 
-const ASSISTENTE_VIRTUAL: Record<"feminino" | "masculino" | "neutro", string> = {
-  feminino: "uma assistente virtual",
-  masculino: "um assistente virtual",
-  neutro: "um atendimento virtual",
-};
+/** "Oi! Sou o Bruno, assistente virtual", com artigo e palavra do genero configurado. */
+export function aberturaDaApresentacao(negocio: ConfigNegocio["negocio"]): string {
+  const { nome, genero } = negocio.atendente;
+  const virtual = negocio.conformidade.avisarQueEhIA;
+  if (genero === "neutro") {
+    return virtual ? `Oi! Aqui e ${nome}, atendimento virtual` : `Oi! Aqui e ${nome}`;
+  }
+  const artigo = genero === "feminino" ? "a" : "o";
+  return virtual ? `Oi! Sou ${artigo} ${nome}, assistente virtual` : `Oi! Sou ${artigo} ${nome}`;
+}
 
 export interface EstadoDoLead {
   nome: string | null;
@@ -316,6 +321,14 @@ export function montarPromptEstavel(config: ConfigNegocio): string {
           "   servico que ela pediu, como uma avaliacao antes do tratamento), entao diga primeiro",
           "   o que e e o que ela ganha com ele, e termine com a pergunta inteira:",
           '   "Voce gostaria de marcar um horario?". Espere ela aceitar.',
+          // Teste 3 (30/09 e 04/10/2026): "quero comecar logo" virou "vou marcar uma call",
+          // e a pessoa nao tinha pedido call nenhuma.
+          '   "Quero comecar logo", "tenho interesse" ou "quero saber mais" NAO e pedido para',
+          "   marcar: e voce quem esta propondo, entao pergunte. Nunca escreva 'vou marcar' ou",
+          "   'vou agendar' antes de a pessoa aceitar.",
+          "   Ofereca o encontro uma vez. Se ela continuar perguntando outras coisas, responda o",
+          "   que ela perguntou e nao repita o convite em toda mensagem: ofereca de novo so quando",
+          "   as duvidas acabarem ou quando ela mesma der abertura.",
           "   Perguntar o periodo nesse caso e pedir que ela escolha horario para uma coisa que",
           "   ela ainda nao sabe que existe: ela fica perdida, e quando voce diz o que era, ja",
           "   parece que foi empurrado.",
@@ -451,10 +464,14 @@ export function montarPromptDinamico(config: ConfigNegocio, lead: EstadoDoLead):
       "\nEsta e a PRIMEIRA mensagem dessa pessoa.",
       negocio.atendente.seApresenta
         ? `Apresente-se em uma frase curta e ofereca ajuda: "Como posso ajudar voce?" ou algo ` +
-          `bem parecido. NUNCA escreva "o que voce precisa?": soa seco e mal-educado.${
-            negocio.conformidade.avisarQueEhIA
-              ? ` Deixe claro que voce e ${ASSISTENTE_VIRTUAL[negocio.atendente.genero]}: isso e obrigatorio.`
-              : ""
+          `bem parecido. NUNCA escreva "o que voce precisa?": soa seco e mal-educado. ` +
+          // Teste 3 (04/10/2026): "deixe claro que e virtual" saiu "Sou Bruno, assistente do
+          // time... da Bootcamp", sem o virtual, sem o artigo e com o genero errado. O modelo
+          // copia frase pronta melhor do que segue descricao, entao o comeco vai escrito.
+          `Comece exatamente assim: "${aberturaDaApresentacao(negocio)}", e complete dizendo de ` +
+          `onde voce e. Cuidado com o artigo antes do nome da empresa ("do Bootcamp", "da ` +
+          `Clinica"): na duvida, use "do time de" ou "da equipe de".${
+            negocio.conformidade.avisarQueEhIA ? ' A palavra "virtual" e obrigatoria.' : ""
           }`
         : 'Va direto ao ponto, sem apresentacao formal, oferecendo ajuda ("Como posso ajudar?").',
       // A abertura nao pode mudar a cada conversa: numa vez a IA comecou pelo nome, na

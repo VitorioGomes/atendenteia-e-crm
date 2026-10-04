@@ -43,8 +43,8 @@ describe("exemplo da barbearia", () => {
     })
       .map((b) => b.text)
       .join("\n");
-    assert.match(texto, /um assistente virtual/);
-    assert.doesNotMatch(texto, /uma assistente virtual/);
+    assert.match(texto, /Sou o \S+, assistente virtual/);
+    assert.doesNotMatch(texto, /Sou a \S+,/);
   });
 
   test("sem servico marcado como agendavel, a IA marca qualquer um", async () => {
