@@ -145,12 +145,14 @@ numa negociação antes de existir interesse.
 
 Preenche `handoff.gatilhos`.
 
-Já comece com os quatro que valem para qualquer negócio, e some o que ela disser:
+Já comece com os três que valem para qualquer negócio, e some o que ela disser:
 
 - a pessoa pedir para falar com um humano;
 - reclamação, insatisfação ou tom agressivo;
-- assunto financeiro fora do previsto (parcelamento diferente, reembolso, cobrança);
-- qualquer coisa que o atendente não souber responder com segurança.
+- assunto financeiro fora do previsto (parcelamento diferente, reembolso, cobrança).
+
+**"Não souber responder" não entra aqui.** Para a dúvida que ele só não sabe, o atendente avisa a
+equipe e continua a conversa; transferir pararia o atendimento por uma pergunta simples.
 
 Depois da resposta, na pergunta seguinte:
 

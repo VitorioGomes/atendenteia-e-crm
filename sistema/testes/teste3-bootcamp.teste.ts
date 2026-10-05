@@ -4,7 +4,7 @@ import { describe, test } from "node:test";
 import { prometeuRetornoDoTime, textoDaPergunta } from "../src/atendimento/aviso-equipe.js";
 import { resumoProvisorio } from "../src/crm/resumo-provisorio.js";
 import { definirFerramentas } from "../src/agente/ferramentas.js";
-import { aberturaDaApresentacao, montarSystem } from "../src/agente/prompt.js";
+import { aberturaDaApresentacao, montarSystem, passoDoHandoff } from "../src/agente/prompt.js";
 import type { EstadoDoLead } from "../src/agente/prompt.js";
 import { negocioExemplo } from "./fixtures.js";
 
@@ -173,5 +173,28 @@ describe("reteste de 04/10/2026", () => {
     assert.match(texto, /NAO e pedido para/);
     assert.match(texto, /Nunca escreva 'vou marcar'/);
     assert.match(texto, /nao repita o convite em toda mensagem/);
+  });
+});
+
+describe("reteste de 04/10/2026: o desconto foi respondido de novo", () => {
+  test("a conferencia dos motivos e a ultima coisa que o modelo le, com os motivos escritos", async () => {
+    const config = await negocioExemplo();
+    const blocos = montarSystem(config, lead());
+    const dinamico = blocos[blocos.length - 1]!.text;
+    const antes = dinamico.slice(dinamico.indexOf("## Antes de responder"));
+    assert.match(antes, /^0\. A ultima mensagem/m);
+    for (const g of config.negocio.handoff.gatilhos) assert.ok(antes.includes(g), g);
+    assert.match(antes, /Nao\s+responda o assunto/);
+  });
+
+  test("sem motivos configurados, o passo nao aparece", () => {
+    assert.deepEqual(passoDoHandoff([]), []);
+  });
+
+  test("duvida simples nao e motivo de transferir, nem nos exemplos", async () => {
+    const config = await negocioExemplo();
+    const texto = montarSystem(config, lead())[0]!.text;
+    assert.match(texto, /Duvida que voce so nao sabe responder nao e motivo para transferir/);
+    assert.ok(!config.negocio.handoff.gatilhos.some((g) => /souber responder/.test(g)));
   });
 });

@@ -302,7 +302,9 @@ export function montarPromptEstavel(config: ConfigNegocio): string {
           // que nao havia desconto, e a IA respondeu sozinha em vez de chamar o dono.
           "Vale MESMO QUE voce saiba a resposta, ou que ela esteja no seu conhecimento: se a " +
           "mensagem se encaixa num destes casos, o dono quer tratar pessoalmente. Nao responda " +
-          "o assunto antes de transferir, nem para dizer que nao pode.",
+          "o assunto antes de transferir, nem para dizer que nao pode.\n" +
+          "Duvida que voce so nao sabe responder nao e motivo para transferir: diga que vai " +
+          "confirmar, chame avisar_equipe e continue atendendo.",
       ),
     );
   }
@@ -506,6 +508,7 @@ export function montarPromptDinamico(config: ConfigNegocio, lead: EstadoDoLead):
   linhas.push(
     "",
     "## Antes de responder",
+    ...passoDoHandoff(config.negocio.handoff.gatilhos),
     "1. Se a pessoa disse algo novo sobre ela (quem e, o que quer, pressa, orcamento, uma",
     "   decisao), chame atualizar_lead NESTA resposta, com o dado e o resumo atualizado.",
     "   Nao deixe para depois: quem abre o CRM no meio da conversa precisa ver o que ja se sabe.",
@@ -517,6 +520,24 @@ export function montarPromptDinamico(config: ConfigNegocio, lead: EstadoDoLead):
   );
 
   return linhas.join("\n");
+}
+
+/**
+ * Reteste do teste 3 (04/10/2026): "se eu pagar a vista tem desconto?" era motivo de chamar
+ * o dono, a regra "vale mesmo que voce saiba a resposta" estava no bloco de handoff, e a IA
+ * respondeu "sem desconto" sozinha. O bloco fica no meio do prompt, longe da hora de
+ * decidir; o conhecimento, com a resposta pronta, fica mais perto. A conferencia vai para
+ * a ultima coisa que o modelo le, com os motivos escritos de novo.
+ */
+export function passoDoHandoff(gatilhos: string[]): string[] {
+  if (!gatilhos.length) return [];
+  return [
+    "0. A ultima mensagem da pessoa se encaixa em algum destes casos?",
+    ...gatilhos.map((g) => `   - ${g}`),
+    "   Se sim, chame transferir_humano e escreva so o aviso de que vai chamar alguem. Nao",
+    "   responda o assunto, nem com o que esta no seu conhecimento, nem para dizer que nao tem.",
+    "   Isso vale antes de qualquer outro passo.",
+  ];
 }
 
 /** Blocos de system prontos pro SDK, com o cache no lugar certo. */
