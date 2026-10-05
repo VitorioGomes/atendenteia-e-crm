@@ -26,6 +26,11 @@ atendente seguindo o roteiro em skill/INSTALAR.md"*. Então você pode estar **f
 
 ## Isto já foi instalado?
 
+**Se `sistema/mudou-para-vps.txt` existe, o atendente mora numa VPS.** Não ligue nada neste
+computador: siga a seção "Depois: atualizar e ajustar" de [VPS.md](VPS.md). E se a pessoa pedir
+para colocar na VPS, ou para ter o atendente 24 horas e o CRM no celular, o roteiro é o
+[VPS.md](VPS.md).
+
 Se `sistema/negocio/negocio.json` **já existe**, a pessoa não está instalando: está voltando para
 ajustar alguma coisa.
 
@@ -302,4 +307,4 @@ Feche dizendo, em poucas linhas:
 - que para mudar qualquer coisa do atendimento (preço, horário, jeito de falar), é só chamar você
   de novo nesta pasta e pedir;
 - onde fica o CRM no celular: **não fica** — é nesse computador, e a VPS é o caminho de quem
-  quer no celular e 24 horas no ar.
+  quer no celular e 24 horas no ar. Quando ela quiser, é só pedir para você "colocar na VPS".

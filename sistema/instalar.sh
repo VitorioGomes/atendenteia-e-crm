@@ -238,10 +238,16 @@ perguntar() {
   # Ja veio pronto pelo ambiente (a skill preenche assim, sem perguntar nada).
   valor="$(printf '%s' "${!var:-}")"
   while [ -z "$valor" ]; do
-    printf "  %s: " "$texto"
-    read -r valor </dev/tty || valor=""
+    printf "  %s: " "$texto" >&2
+    if ! read -r valor </dev/tty 2>/dev/null; then
+      # Sem terminal para digitar (a IA rodando por ssh): campo obrigatorio que faltou
+      # para aqui, em vez de repetir "obrigatorio" para sempre.
+      valor=""
+      [ "$obrigatorio" = "nao" ] && break
+      { morrer "Falta ${var}, e este terminal nao aceita digitar."                "Rode de novo informando o valor antes do comando: ${var}=... bash instalar.sh"; } >&2
+    fi
     [ "$obrigatorio" = "nao" ] && break
-    [ -z "$valor" ] && echo "     (esse campo e obrigatorio)"
+    [ -z "$valor" ] && echo "     (esse campo e obrigatorio)" >&2
   done
   printf '%s' "$valor"
 }
