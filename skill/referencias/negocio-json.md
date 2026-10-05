@@ -3,14 +3,8 @@
 Leia isto antes de escrever. As armadilhas aqui são as que fazem o sistema recusar subir ou,
 pior, subir errado e só dar problema com cliente de verdade na linha.
 
-Comece copiando `sistema/negocio/negocio.exemplo.json` e substituindo. O exemplo é de uma clínica
-odontológica: **varra tudo que for de dentista** se o negócio for outro. Sobra de exemplo é o
-erro mais comum e o mais constrangedor.
-
-Se o negócio não for de saúde, olhe também [../exemplos/barbearia.json](../exemplos/barbearia.json):
-é o mesmo sistema configurado para uma barbearia, com almoço no meio do dia, segunda-feira
-fechada, três cadeiras ao mesmo tempo e preço dito na hora. Dois exemplos diferentes ajudam a não
-copiar o jeito de um só.
+Comece copiando `sistema/negocio/negocio.molde.json` para `negocio.json`. Ele tem todos os campos
+e nenhum conteúdo: preencha com o que a pessoa disse e deixe vazio o que ela não disse.
 
 ---
 
@@ -99,6 +93,20 @@ coisa ("convenio", "convênio", "tem convenio") e a etiqueta deixa de servir par
 
 Lista vazia é resposta válida: desliga as etiquetas por completo.
 
+### `regras` e `naoFaz`: só o que é deste negócio
+
+O jeito de conversar que vale para todo negócio **já está no sistema** e é atualizado quando a
+pessoa roda `git pull`: uma pergunta por vez, mensagens curtas, chamar pelo nome, não inventar
+preço nem prazo, avisar a equipe quando não souber, não discutir com quem provoca. **Não escreva
+nada disso aqui.** O que está no `negocio.json` fica congelado na máquina da pessoa: quando o
+sistema muda, a frase velha continua lá e briga com a nova. Foi o que aconteceu no teste de
+04/10/2026: "se não souber, transfira" e "não dê desconto que não esteja no conhecimento" vieram de
+um exemplo copiado e fizeram o atendente responder o desconto sozinho.
+
+Entram só regras que nascem do negócio, ditas por ela: "não prometer faturamento, o resultado
+depende do aluno", "não dar diagnóstico, isso é na avaliação", "não inventar data de turma".
+Lista vazia é resposta válida.
+
 ### `falarDePreco`
 
 Três valores, escritos exatamente assim: `"so_se_perguntarem"` (padrão), `"pode_falar"`,
@@ -119,7 +127,8 @@ depois é a dona do negócio.
 Assuntos que sempre valem a pena, porque são os que o cliente pergunta:
 
 - o que o negócio é e há quanto tempo existe;
-- **formas de pagamento** (parcelamento, PIX, desconto à vista);
+- **formas de pagamento** (parcelamento, PIX, desconto à vista se existir e não for assunto da
+  equipe);
 - convênios, planos ou parcerias, e o que eles **não** cobrem;
 - como chegar, estacionamento, ponto de referência;
 - as cinco dúvidas que mais aparecem no WhatsApp hoje — pergunte isso diretamente, é ouro;
@@ -146,7 +155,7 @@ Confira, nesta ordem:
 
 1. O JSON abre? Se tiver vírgula sobrando ou aspas faltando, o sistema recusa subir e a mensagem
    de erro diz onde.
-2. Sobrou alguma coisa do exemplo da clínica?
+2. Alguma frase em `regras`, `naoFaz` ou `gatilhos` que a pessoa não disse? Tire.
 3. Os horários batem com o que ela falou, repetidos em voz alta?
 4. O estágio de agendado tem `aoAgendar: true`?
 5. Algum preço entrou sem ela ter confirmado em palavras? Tire.

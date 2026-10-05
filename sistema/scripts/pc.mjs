@@ -13,7 +13,7 @@
 
 import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -142,26 +142,19 @@ if (!existsSync(path.join(AQUI, "node_modules"))) {
 // ---------------------------------------------------------------------------
 titulo("Configuracao do negocio");
 
-const copiarExemplo = async (exemplo, destino, oQueE) => {
-  if (existsSync(destino)) {
-    ok(`${oQueE} ja existe`);
-    return false;
-  }
-  await copyFile(exemplo, destino);
-  aviso(`${oQueE} criado a partir do exemplo: ${path.relative(AQUI, destino)}`);
-  return true;
-};
-
-const criouConfig = await copiarExemplo(
-  path.join(AQUI, "negocio", "negocio.exemplo.json"),
-  path.join(AQUI, "negocio", "negocio.json"),
-  "negocio.json",
-);
-await copiarExemplo(
-  path.join(AQUI, "negocio", "conhecimento.exemplo.md"),
-  path.join(AQUI, "negocio", "conhecimento.md"),
-  "conhecimento.md",
-);
+// Ate 05/10/2026 copiava uma clinica ficticia quando faltava a configuracao, e o sistema
+// subia atendendo como dentista. Sem a entrevista nao ha negocio para atender.
+if (existsSync(path.join(AQUI, "negocio", "negocio.json"))) {
+  ok("negocio.json ja existe");
+} else {
+  morrer(
+    "Falta a configuracao do negocio (negocio/negocio.json).",
+    "Peca para a IA instalar seguindo o roteiro skill/INSTALAR.md: ela faz a entrevista e escreve esse arquivo.",
+  );
+}
+if (!existsSync(path.join(AQUI, "negocio", "conhecimento.md"))) {
+  aviso("Nao ha negocio/conhecimento.md. O atendente vai saber so o basico.");
+}
 
 // ---------------------------------------------------------------------------
 // 3. Arquivo .env
@@ -284,11 +277,6 @@ if (!existsSync(path.join(AQUI, "web", "dist", "index.html"))) {
 // 5. Liga
 // ---------------------------------------------------------------------------
 titulo("Ligando o atendente");
-
-if (criouConfig) {
-  aviso("O negocio esta com os dados de EXEMPLO (uma clinica ficticia).");
-  aviso("Edite negocio/negocio.json e negocio/conhecimento.md com os seus dados.");
-}
 
 console.log();
 console.log(`  ${NEGRITO}CRM:${FIM} http://localhost:3000`);

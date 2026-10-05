@@ -264,9 +264,8 @@ export async function carregarNegocio(): Promise<ConfigNegocio> {
     throw new ErroDeConfiguracao(
       `Nao encontrei o arquivo ${arquivoJson}.\n` +
         "Ele descreve o seu negocio e e obrigatorio.\n" +
-        'Para comecar de um modelo pronto, copie o exemplo:\n' +
-        "  Windows: copy negocio\\negocio.exemplo.json negocio\\negocio.json\n" +
-        "  Mac:     cp negocio/negocio.exemplo.json negocio/negocio.json",
+        "Peca para a IA instalar seguindo o roteiro skill/INSTALAR.md: ela faz a entrevista\n" +
+        "e escreve esse arquivo a partir de negocio/negocio.molde.json.",
     );
   }
 

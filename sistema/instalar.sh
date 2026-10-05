@@ -308,7 +308,7 @@ if [ -f negocio/negocio.json ]; then
   ok "negocio/negocio.json encontrado"
 else
   morrer "Nao encontrei o arquivo negocio/negocio.json, que descreve o seu negocio." \
-         "Rode a skill no Claude Code para gerar, ou comece do modelo pronto: cp negocio/negocio.exemplo.json negocio/negocio.json"
+         "Gere com a IA no seu computador (roteiro skill/INSTALAR.md) e traga com npm run mudar, ou rode o roteiro aqui mesmo."
 fi
 
 [ -f negocio/conhecimento.md ] || {

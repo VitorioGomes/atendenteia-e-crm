@@ -386,7 +386,7 @@ const AGENDAMENTOS: Agendamento[] = [
   { id: "a8", servico: "Avaliação", quando: diaAberto(1, 11, 20).toISOString(), duracaoMin: 40, status: "CANCELED", observacao: "viagem de trabalho, vai remarcar", dealId: null, nome: "Sandra Oliveira", telefoneFormatado: "(11) 94444-6666", criadoPor: "ia" },
 ];
 
-/** As mesmas do negocio.exemplo.json: é o que o comprador vê no primeiro dia. */
+/** Respostas rápidas de uma clínica fictícia, só para a demonstração. */
 const RESPOSTAS: RespostaRapida[] = [
   { id: "r1", atalho: "avaliacao", texto: "{nome}, a avaliação é gratuita e sem compromisso: você sai dela com o plano de tratamento e o orçamento fechado. Qual período fica melhor para você, manhã, tarde ou sábado?" },
   { id: "r2", atalho: "confirmar", texto: "Oi {nome}, tudo bem? Passando para confirmar seu horário aqui na Clínica Sorriso Vivo. Posso contar com a sua presença?" },

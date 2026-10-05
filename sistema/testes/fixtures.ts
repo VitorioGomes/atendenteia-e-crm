@@ -8,18 +8,14 @@ import type { ConfigNegocio } from "../src/config/negocio.js";
 const aqui = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Carrega o negocio de exemplo (clinica). Usar o mesmo arquivo que vai pro comprador
- * garante que o exemplo publicado nunca fique invalido sem a gente perceber.
+ * Clinica ficticia usada so nos testes. Ate 05/10/2026 ela era o exemplo que a skill
+ * copiava, e as regras genericas dela iam parar na configuracao de todo comprador
+ * (inclusive "se nao souber, transfira", que contradizia o avisar_equipe). Agora a
+ * skill parte do molde vazio, e a clinica mora aqui.
  */
 export async function negocioExemplo(): Promise<ConfigNegocio> {
-  const raiz = path.resolve(aqui, "..");
-  const json = JSON.parse(
-    await readFile(path.join(raiz, "negocio", "negocio.exemplo.json"), "utf8"),
-  );
-  const conhecimento = await readFile(
-    path.join(raiz, "negocio", "conhecimento.exemplo.md"),
-    "utf8",
-  );
+  const json = JSON.parse(await readFile(path.join(aqui, "fixtures", "negocio-clinica.json"), "utf8"));
+  const conhecimento = await readFile(path.join(aqui, "fixtures", "conhecimento-clinica.md"), "utf8");
   return { negocio: NegocioSchema.parse(json), conhecimento };
 }
 

@@ -50,10 +50,9 @@ reinicie o computador; é mais rápido que caçar o processo.
 A mensagem diz o campo. As causas de sempre estão em [negocio-json.md](negocio-json.md): horário
 fora do formato `HH:MM`, chave de estágio com maiúscula ou espaço, vírgula sobrando no JSON.
 
-### "O negócio está com os dados de EXEMPLO"
+### "Falta a configuração do negócio"
 
-Você esqueceu de escrever o `negocio.json` da pessoa e ficou o da clínica fictícia. Volte ao
-Passo 3.
+O `negocio.json` da pessoa ainda não foi escrito. Volte ao Passo 3.
 
 ---
 

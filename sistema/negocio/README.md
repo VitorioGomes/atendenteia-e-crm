@@ -8,16 +8,14 @@ todo mundo — o que faz a IA falar como a sua empresa está aqui dentro.
 | `negocio.json` | As regras: quem é a atendente, horários, funil, serviços, follow-up |
 | `conhecimento.md` | O que a IA sabe: perguntas frequentes, objeções, detalhes, políticas |
 
-Os arquivos `*.exemplo.*` são um modelo de clínica preenchido. A skill gera os seus a partir da
-entrevista, mas você pode editar à mão quando quiser.
+A IA gera os dois a partir da entrevista, partindo de `negocio.molde.json` (todos os campos, nenhum
+conteúdo). Você pode editar à mão quando quiser.
 
 ## Como editar
 
 1. Abra o arquivo, mude o que quiser, salve.
-2. Rode `docker compose restart app`.
+2. Reinicie: no computador, pare com Ctrl+C e rode `npm run pc`; na VPS, `docker compose restart app`.
 3. Mande uma mensagem no WhatsApp para testar.
-
-Não precisa rebuildar nada — a pasta fica montada dentro do container.
 
 ## Dica que vale por metade do curso
 

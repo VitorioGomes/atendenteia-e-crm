@@ -162,9 +162,9 @@ com o sistema no ar.
 Como preencher cada campo está em [referencias/negocio-json.md](referencias/negocio-json.md).
 Leia antes de escrever: tem armadilha ali que quebra o sistema na hora de ligar.
 
-1. Copie `sistema/negocio/negocio.exemplo.json` para `sistema/negocio/negocio.json` e vá
-   substituindo. O exemplo é de uma clínica: **troque tudo**, não deixe sobra de dentista num
-   petshop.
+1. Copie `sistema/negocio/negocio.molde.json` para `sistema/negocio/negocio.json` e preencha com
+   o que a pessoa disse. O molde é vazio de propósito: não existe exemplo de outro negócio para
+   copiar, e tudo que entrar ali tem que ter vindo dela.
 2. Escreva `sistema/negocio/conhecimento.md` com o que a pessoa contou e com o que veio do
    material dela. É aqui que mora a diferença entre um bot que serve e um que irrita.
 3. **Leia os dois em voz alta para ela**, resumidos. É a última chance de pegar um preço errado

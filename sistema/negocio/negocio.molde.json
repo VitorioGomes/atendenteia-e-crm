@@ -1,0 +1,75 @@
+{
+  "_leia": "Molde vazio. Copie para negocio.json e preencha com as respostas da entrevista, seguindo skill/referencias/negocio-json.md. Campo que voce nao souber pode ficar vazio: o sistema tem padrao. Regras de comportamento que valem para todo negocio (uma pergunta por vez, nao inventar, avisar a equipe quando nao souber) ja estao no sistema: nao escreva de novo aqui.",
+  "negocio": {
+    "nome": "",
+    "segmento": "",
+    "descricaoCurta": "",
+    "cidade": "",
+    "endereco": "",
+    "comoChegar": "",
+    "site": "",
+    "instagram": ""
+  },
+  "atendente": {
+    "nome": "",
+    "genero": "neutro",
+    "cargo": "assistente de atendimento",
+    "tom": "cordial e objetivo",
+    "emojis": "poucos",
+    "tamanhoResposta": "curto",
+    "seApresenta": true,
+    "falarDePreco": "so_se_perguntarem",
+    "regras": [],
+    "naoFaz": []
+  },
+  "horarios": {
+    "timezone": "America/Sao_Paulo",
+    "atendimento": {
+      "seg": [],
+      "ter": [],
+      "qua": [],
+      "qui": [],
+      "sex": [],
+      "sab": [],
+      "dom": []
+    }
+  },
+  "objetivo": {
+    "principal": "",
+    "explicacao": "",
+    "perguntasQualificacao": []
+  },
+  "funil": {
+    "estagios": []
+  },
+  "servicos": [],
+  "agenda": {
+    "ativo": false,
+    "duracaoPadraoMin": 60,
+    "antecedenciaMinimaHoras": 2,
+    "janelaDias": 30,
+    "intervaloSlotsMin": 60,
+    "atendimentosSimultaneos": 1,
+    "lembrete": {
+      "ativo": true,
+      "horasAntes": 24
+    }
+  },
+  "followup": {
+    "ativo": false,
+    "maxTentativas": 3,
+    "tentativas": []
+  },
+  "handoff": {
+    "avisarNoWhatsapp": "",
+    "pausaAposHumanoMin": 180,
+    "mensagem": "Vou chamar alguém da equipe pra te ajudar com isso. Só um instante!",
+    "gatilhos": []
+  },
+  "camposExtras": [],
+  "etiquetas": [],
+  "respostasRapidas": [],
+  "conformidade": {
+    "avisarQueEhIA": true
+  }
+}
