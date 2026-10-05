@@ -243,7 +243,7 @@ export function Contatos({
 
       {total > 0 && (
         <div className="tabela-rolagem">
-          <table className="tabela">
+          <table className="tabela tabela-contatos">
             <thead>
               <tr>
                 <th>Nome</th>
@@ -267,6 +267,10 @@ export function Contatos({
                       <Avatar nome={contato.nome} telefone={contato.telefone} tamanho={32} />
                       <div>
                         <div className="nome">{contato.nome ?? "Sem nome"}</div>
+                        {/* No celular a tabela vira lista: telefone e e-mail descem para
+                            baixo do nome, e as colunas deles somem. */}
+                        <div className="so-celular telefone-celular">{contato.telefoneFormatado}</div>
+                        {contato.email && <div className="so-celular secundario">{contato.email}</div>}
                         {contato.agendamentos > 0 && (
                           <div className="secundario">
                             {contato.agendamentos}{" "}
@@ -276,9 +280,9 @@ export function Contatos({
                       </div>
                     </div>
                   </td>
-                  <td className="numero">{contato.telefoneFormatado}</td>
-                  <td>{contato.email ?? "—"}</td>
-                  <td>
+                  <td className="numero coluna-telefone">{contato.telefoneFormatado}</td>
+                  <td className="coluna-email">{contato.email ?? "—"}</td>
+                  <td className={`coluna-etiquetas${contato.tags.length === 0 ? " vazia" : ""}`}>
                     {contato.tags.length === 0 ? (
                       "—"
                     ) : (
@@ -289,7 +293,7 @@ export function Contatos({
                       </div>
                     )}
                   </td>
-                  <td>
+                  <td className="coluna-estagio">
                     {contato.estagio ? (
                       <EstagioDoContato
                         nome={contato.estagio}
@@ -307,7 +311,7 @@ export function Contatos({
                     onClick={(e) => e.stopPropagation()}
                   >
                     <a
-                      className="botao discreto"
+                      className="botao discreto whatsapp-linha"
                       href={`https://wa.me/${contato.telefone}`}
                       target="_blank"
                       rel="noreferrer"
@@ -317,7 +321,7 @@ export function Contatos({
                     </a>
                     <button
                       type="button"
-                      className="botao discreto"
+                      className="botao discreto editar-linha"
                       onClick={() => setEditando(contato)}
                     >
                       Editar

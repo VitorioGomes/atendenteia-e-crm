@@ -5,7 +5,7 @@ import { desde, nomeExibido, quandoNaLista, rotuloDoDia } from "../formato";
 import { Avatar } from "../avatar";
 import { Balao } from "../balao";
 import { Compositor, type ControleCompositor } from "../compositor";
-import { IconeBusca } from "../icones";
+import { IconeBusca, IconeSeta } from "../icones";
 import { EscolherResponsavel, SeloResponsavel, type QuemAtende } from "../responsavel";
 
 /**
@@ -262,6 +262,8 @@ function ConversaAberta({
   const [lead, setLead] = useState<Lead | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [arrastando, setArrastando] = useState(false);
+  // No celular o resumo abre cortado em duas linhas; tocar mostra o resto.
+  const [resumoInteiro, setResumoInteiro] = useState(false);
   const fim = useRef<HTMLDivElement>(null);
   const areaMensagens = useRef<HTMLDivElement>(null);
   // Quem está lendo lá em cima não pode ser puxado para baixo a cada atualização.
@@ -368,8 +370,14 @@ function ConversaAberta({
       )}
 
       <header className="aberta-topo">
-        <button type="button" className="botao discreto voltar" onClick={aoVoltar}>
-          Voltar
+        <button
+          type="button"
+          className="botao-icone voltar"
+          onClick={aoVoltar}
+          aria-label="Voltar para a lista"
+          title="Voltar para a lista"
+        >
+          <IconeSeta tamanho={20} className="virada" />
         </button>
 
         <Avatar nome={nome} telefone={resumo.telefone} tamanho={40} />
@@ -407,9 +415,12 @@ function ConversaAberta({
       {erro && <div className="aviso erro">{erro}</div>}
 
       {lead?.resumo && (
-        <div className="resumo-da-ia">
+        <div
+          className={`resumo-da-ia${resumoInteiro ? " inteiro" : ""}`}
+          onClick={() => setResumoInteiro((v) => !v)}
+        >
           <span className="rotulo">Resumo da IA</span>
-          {lead.resumo}
+          <span className="texto-resumo">{lead.resumo}</span>
           {lead.proximoPasso && <span className="proximo">Próximo passo: {lead.proximoPasso}</span>}
         </div>
       )}

@@ -3237,15 +3237,6 @@ input.campo:hover {
     overflow: hidden;
   }
 
-  /* No celular a tela é da conversa: o resumo fica em três linhas. */
-  .resumo-da-ia {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-    padding: 8px 12px;
-  }
-
   .conversa-aberta .aviso.faixa {
     margin: 8px 12px 0;
   }
@@ -6259,4 +6250,223 @@ input.texto-editavel {
    Mesmo lugar e tamanho do resumo, tinta mais fraca: e o sistema, nao a IA, falando. */
 .cartao .resumo.provisorio {
   color: var(--tinta-fraca);
+}
+
+/* ===================================================== celular (05/10/2026)
+   Pedido do dono, olhando o CRM no celular pela VPS. Este bloco fica no fim de
+   proposito: as regras da barra recolhivel e da marca vem depois do bloco de
+   celular da estrutura e devolviam o nome do negocio para a barra de baixo, que
+   dividia a largura com os seis icones. */
+
+.so-celular {
+  display: none;
+}
+
+/* Resumo da IA: o corte vale so no celular. No computador o clique nao faz nada. */
+.resumo-da-ia .texto-resumo {
+  display: block;
+}
+
+@media (max-width: 860px) {
+  /* Barra de baixo: so os icones, cada um com o nome embaixo, como a barra de
+     abas do celular. Seis itens dividem a largura por igual. */
+  .lateral .marca {
+    display: none;
+  }
+
+  .lateral {
+    gap: 2px;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .lateral button {
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    min-height: 54px;
+    padding: 6px 2px 5px;
+    border-radius: 12px;
+  }
+
+  .lateral button .com-icone {
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .lateral button .icone {
+    margin-right: 0;
+  }
+
+  .lateral button .rotulo {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .lateral button .contagem.urgente {
+    top: 3px;
+    left: calc(50% + 5px);
+  }
+
+  /* Conversas: a tela usa a altura que sobra entre o topo e a barra de baixo, em
+     vez de uma conta com a altura da janela, que no celular inclui a barra do
+     navegador e cortava a caixa de escrever. */
+  .tela-conversas {
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* Com uma conversa aberta, o titulo da pagina sai: a tela e da conversa. */
+  .tela-conversas:has(.caixa-entrada.com-aberta) > .cabecalho {
+    display: none;
+  }
+
+  .conteudo:has(.tela-conversas) {
+    padding-bottom: 12px;
+  }
+
+  .aberta-topo {
+    gap: 8px 10px;
+    padding: 10px 12px 10px 6px;
+  }
+
+  .aberta-topo .voltar {
+    display: inline-grid;
+    width: 34px;
+    height: 40px;
+  }
+
+  .aberta-topo .quem h2 {
+    font-size: var(--texto-medio);
+  }
+
+  .aberta-topo .acoes {
+    padding-left: 6px;
+  }
+
+  /* Resumo: duas linhas, sem pedaco de linha aparecendo. O corte fica no texto,
+     nao na caixa, senao o espaco interno mostra metade da linha seguinte. Tocar
+     abre o resto. */
+  .resumo-da-ia {
+    padding: 8px 12px 10px;
+    cursor: pointer;
+  }
+
+  .resumo-da-ia .texto-resumo {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .resumo-da-ia .proximo {
+    display: none;
+  }
+
+  .resumo-da-ia.inteiro .texto-resumo {
+    display: block;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+
+  .resumo-da-ia.inteiro .proximo {
+    display: block;
+  }
+
+  /* Contatos: a tabela vira lista. Nome com o telefone embaixo e o apagar ao
+     lado; estagio e etiquetas descem, alinhados com o nome. */
+  .so-celular {
+    display: block;
+  }
+
+  .tabela-contatos thead {
+    display: none;
+  }
+
+  .tabela-contatos,
+  .tabela-contatos tbody {
+    display: block;
+  }
+
+  .tabela-contatos tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "pessoa acoes"
+      "estagio estagio"
+      "etiquetas etiquetas";
+    align-items: start;
+    gap: 8px 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .tabela-contatos tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .tabela-contatos td {
+    display: block;
+    height: auto;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .tabela-contatos td:first-child {
+    grid-area: pessoa;
+  }
+
+  /* Tocar no contato abre a janela, que ja tem editar e abrir no WhatsApp. Na
+     linha fica so o apagar, que la nao existe. */
+  .tabela-contatos .coluna-telefone,
+  .tabela-contatos .coluna-email,
+  .tabela-contatos .editar-linha,
+  .tabela-contatos .whatsapp-linha {
+    display: none;
+  }
+
+  .tabela-contatos .coluna-estagio {
+    grid-area: estagio;
+    padding-left: 43px;
+  }
+
+  .tabela-contatos .coluna-etiquetas {
+    grid-area: etiquetas;
+    padding-left: 43px;
+  }
+
+  .tabela-contatos .coluna-etiquetas.vazia {
+    display: none;
+  }
+
+  .tabela-contatos .apagar-linha {
+    height: 32px;
+    margin-right: -6px;
+  }
+
+  .tabela-contatos .acoes-linha {
+    grid-area: acoes;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .tabela-contatos .pessoa-celula {
+    align-items: flex-start;
+  }
+
+  .tabela-contatos .telefone-celular {
+    font-variant-numeric: tabular-nums;
+    color: var(--tinta-media);
+    font-size: var(--texto-menor);
+    margin-top: 1px;
+  }
 }
