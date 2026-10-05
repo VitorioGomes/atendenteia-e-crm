@@ -20,6 +20,8 @@ Antes de começar, ela precisa ter **uma VPS com Ubuntu 24.04 já comprada**, co
    e se envia para a VPS. Nunca edite direto na VPS: a próxima mudança feita aqui apagaria a de lá.
 4. Comando que demora (instalar, atualizar) pode levar uns 5 minutos. Avise antes e espere; não
    rode de novo achando que travou.
+5. Se a sua ferramenta bloquear um comando por permissão, entregue o comando pronto para a pessoa
+   colar no terminal e diga o que ele faz em uma frase.
 
 ---
 
@@ -154,6 +156,20 @@ INSTALAR.md, e envie:
 scp sistema/negocio/negocio.json sistema/negocio/conhecimento.md atendente-vps:/root/atendenteia-e-crm/sistema/negocio/
 ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && docker compose restart app"
 ```
+
+### Trocar a chave da IA
+
+A chave **não passa pela conversa**, nem na troca. Peça para a pessoa colar a chave nova no
+`sistema/.env` **deste computador** (`code sistema/.env` no VS Code), na linha
+`ANTHROPIC_API_KEY=`, e salvar. Depois envie sem mostrar o valor, rodando no Bash (no PowerShell
+as aspas escapadas quebram):
+
+```
+grep '^ANTHROPIC_API_KEY=' sistema/.env | ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && k=\$(cat) && sed -i \"s|^ANTHROPIC_API_KEY=.*|\$k|\" .env && docker compose up -d app"
+```
+
+Não sugira trocar a chave por conta própria. Se ela já apareceu numa conversa antiga, a decisão de
+trocar é da pessoa.
 
 ### Quando algo não funciona
 
