@@ -51,6 +51,9 @@ services:
       - app
     environment:
       DOMINIO: ${DOMINIO}
+      # Sem isso o Caddyfile caia em admin@localhost e o emissor recusava o certificado:
+      # o CRM nao abria na primeira instalacao real (05/10/2026).
+      EMAIL_CERTIFICADO: ${EMAIL_CERTIFICADO:-${CRM_EMAIL}}
     ports:
       - "80:80"
       - "443:443"
