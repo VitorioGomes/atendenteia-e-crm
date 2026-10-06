@@ -19,9 +19,10 @@ import {
   IconeImagem,
   IconeLixeira,
   IconeMicrofone,
+  IconeParar,
   IconeRaio,
 } from "./icones";
-import { tamanhoDeArquivo } from "./midia";
+import { PlayerAudio, tamanhoDeArquivo } from "./midia";
 import { atalhoDigitado, preencherResposta } from "./respostas";
 import {
   GerenciarRespostas,
@@ -74,6 +75,15 @@ export const Compositor = forwardRef<ControleCompositor, Props>(
     const raiz = useRef<HTMLFormElement>(null);
 
     const gravador = useGravador(aoErro);
+
+    // Endereco local da gravacao parada, para ouvir antes de enviar.
+    const [urlGravacao, setUrlGravacao] = useState<string | null>(null);
+    useEffect(() => {
+      if (!gravador.pronta) return setUrlGravacao(null);
+      const url = URL.createObjectURL(gravador.pronta.audio);
+      setUrlGravacao(url);
+      return () => URL.revokeObjectURL(url);
+    }, [gravador.pronta]);
 
     useEffect(() => {
       api
@@ -361,22 +371,46 @@ export const Compositor = forwardRef<ControleCompositor, Props>(
                   <IconeLixeira tamanho={20} />
                 </button>
 
-                <div className="gravacao" role="status" aria-live="polite">
-                  <span className="ponto-gravando" aria-hidden="true" />
-                  <span className="tempo-gravacao">
-                    {gravador.estado === "pedindo"
-                      ? "Liberando o microfone"
-                      : tempo(gravador.segundos)}
-                  </span>
-                  <span className="barras-ao-vivo" aria-hidden="true">
-                    {gravador.niveis.map((n, i) => (
-                      <span
-                        key={i}
-                        style={{ transform: `scaleY(${Math.max(0.12, n)})` }}
-                      />
-                    ))}
-                  </span>
-                </div>
+                {/* Parada: ouvir antes de decidir. Gravando: o tempo e as barras. */}
+                {gravador.estado === "revisando" && urlGravacao ? (
+                  <div className="gravacao revisando">
+                    <PlayerAudio
+                      url={urlGravacao}
+                      segundos={gravador.pronta?.segundos ?? null}
+                    />
+                  </div>
+                ) : (
+                  <div className="gravacao" role="status" aria-live="polite">
+                    <span className="ponto-gravando" aria-hidden="true" />
+                    <span className="tempo-gravacao">
+                      {gravador.estado === "pedindo"
+                        ? "Liberando o microfone"
+                        : tempo(gravador.segundos)}
+                    </span>
+                    <span className="barras-ao-vivo" aria-hidden="true">
+                      {gravador.niveis.map((n, i) => (
+                        <span
+                          key={i}
+                          style={{ transform: `scaleY(${Math.max(0.12, n)})` }}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                )}
+
+                {/* Parar sem enviar: o que faltava (pedido do dono, 05/10/2026). */}
+                {gravador.estado !== "revisando" && (
+                  <button
+                    type="button"
+                    className="botao-icone parar-gravacao"
+                    onClick={() => void gravador.parar()}
+                    disabled={gravador.estado !== "gravando"}
+                    aria-label="Parar de gravar"
+                    title="Parar de gravar e ouvir antes de enviar"
+                  >
+                    <IconeParar tamanho={20} />
+                  </button>
+                )}
               </>
             ) : (
               <>
@@ -480,7 +514,10 @@ export const Compositor = forwardRef<ControleCompositor, Props>(
                 type="button"
                 className="botao-redondo"
                 onClick={() => void enviarGravacao()}
-                disabled={gravador.estado !== "gravando"}
+                disabled={
+                  enviando ||
+                  (gravador.estado !== "gravando" && gravador.estado !== "revisando")
+                }
                 aria-label="Enviar áudio"
                 title="Enviar áudio"
               >

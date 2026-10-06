@@ -52,7 +52,7 @@ const VELOCIDADES = [1, 1.5, 2];
  * Player de mensagem de voz. O controle nativo do navegador tem uma cara diferente
  * em cada sistema e não cabe num balão; este segue o desenho do CRM.
  */
-function PlayerAudio({ url, segundos }: { url: string; segundos: number | null }) {
+export function PlayerAudio({ url, segundos }: { url: string; segundos: number | null }) {
   const audio = useRef<HTMLAudioElement>(null);
   const [tocando, setTocando] = useState(false);
   const [atual, setAtual] = useState(0);

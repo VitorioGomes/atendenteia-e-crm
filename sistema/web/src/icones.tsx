@@ -204,6 +204,12 @@ export const IconePlay = (p: Props) => (
   </Base>
 );
 
+export const IconeParar = (p: Props) => (
+  <Base {...p}>
+    <rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" />
+  </Base>
+);
+
 export const IconePausa = (p: Props) => (
   <Base {...p}>
     <path d="M9 5.5v13M15 5.5v13" />

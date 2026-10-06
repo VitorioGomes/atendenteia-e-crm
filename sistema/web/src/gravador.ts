@@ -19,7 +19,8 @@ export interface Gravacao {
   onda: number[] | null;
 }
 
-type Estado = "parado" | "pedindo" | "gravando";
+/** "revisando": parou de gravar e a pessoa ainda decide se ouve, envia ou apaga. */
+type Estado = "parado" | "pedindo" | "gravando" | "revisando";
 
 const TIPOS = ["audio/ogg;codecs=opus", "audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
 /** Mensagem de voz longa demais vira palestra; o WhatsApp também corta. */
@@ -44,6 +45,7 @@ export function useGravador(aoErro: (mensagem: string) => void) {
   const [estado, setEstado] = useState<Estado>("parado");
   const [segundos, setSegundos] = useState(0);
   const [niveis, setNiveis] = useState<number[]>([]);
+  const [pronta, setPronta] = useState<Gravacao | null>(null);
 
   const gravador = useRef<MediaRecorder | null>(null);
   const fluxo = useRef<MediaStream | null>(null);
@@ -54,6 +56,9 @@ export function useGravador(aoErro: (mensagem: string) => void) {
   const quadro = useRef(0);
   const relogio = useRef(0);
   const aoParar = useRef<((g: Gravacao | null) => void) | null>(null);
+  // Apagar enquanto o navegador ainda pede o microfone: quando a permissao chegar,
+  // o microfone e solto na hora, em vez de comecar a gravar sozinho.
+  const cancelado = useRef(false);
 
   const soltarRecursos = useCallback(() => {
     cancelAnimationFrame(quadro.current);
@@ -84,12 +89,18 @@ export function useGravador(aoErro: (mensagem: string) => void) {
       return;
     }
 
+    cancelado.current = false;
+    setPronta(null);
     setEstado("pedindo");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
       });
       fluxo.current = stream;
+      if (cancelado.current) {
+        soltarRecursos();
+        return;
+      }
 
       const tipo = TIPOS.find((t) => MediaRecorder.isTypeSupported(t));
       const rec = new MediaRecorder(stream, tipo ? { mimeType: tipo } : undefined);
@@ -100,6 +111,9 @@ export function useGravador(aoErro: (mensagem: string) => void) {
         if (e.data.size > 0) partes.current.push(e.data);
       };
       rec.onstop = () => {
+        // Gravacao apagada e outra ja comecada: este aviso atrasado nao mexe na nova.
+        if (gravador.current !== rec) return;
+        gravador.current = null;
         const duracao = (Date.now() - inicio.current) / 1000;
         soltarRecursos();
         setEstado("parado");
@@ -131,12 +145,20 @@ export function useGravador(aoErro: (mensagem: string) => void) {
       relogio.current = window.setInterval(() => {
         const s = Math.floor((Date.now() - inicio.current) / 1000);
         setSegundos(s);
-        if (s >= MAX_SEGUNDOS && rec.state === "recording") rec.stop();
+        // No limite, para sozinho e espera a pessoa decidir, como no botao de parar.
+        if (s >= MAX_SEGUNDOS && rec.state === "recording") {
+          aoParar.current = (g) => {
+            if (!g) return;
+            setPronta(g);
+            setEstado("revisando");
+          };
+          rec.stop();
+        }
       }, 250);
     } catch (e) {
       soltarRecursos();
       setEstado("parado");
-      aoErro(mensagemDeErro(e));
+      if (!cancelado.current) aoErro(mensagemDeErro(e));
     }
   }, [estado, aoErro, soltarRecursos]);
 
@@ -170,8 +192,8 @@ export function useGravador(aoErro: (mensagem: string) => void) {
     }
   }
 
-  /** Para e devolve a gravação. */
-  const terminar = useCallback(
+  /** Para o microfone e devolve o que foi gravado. */
+  const pararGravador = useCallback(
     () =>
       new Promise<Gravacao | null>((resolver) => {
         const rec = gravador.current;
@@ -182,15 +204,42 @@ export function useGravador(aoErro: (mensagem: string) => void) {
     [],
   );
 
-  /** Para e joga fora. */
+  /** Para de gravar e deixa a gravação esperando: ouvir, enviar ou apagar. */
+  const parar = useCallback(async () => {
+    const gravacao = await pararGravador();
+    if (!gravacao) return;
+    setPronta(gravacao);
+    setEstado("revisando");
+  }, [pararGravador]);
+
+  /** Entrega a gravação para enviar: a que está esperando, ou para de gravar agora. */
+  const terminar = useCallback(async () => {
+    if (pronta) {
+      setPronta(null);
+      setEstado("parado");
+      return pronta;
+    }
+    return pararGravador();
+  }, [pronta, pararGravador]);
+
+  /**
+   * Joga fora, em qualquer etapa: pedindo o microfone, gravando ou ouvindo. A tela
+   * volta na hora, sem esperar o navegador avisar que parou (no iPhone isso demora).
+   */
   const cancelar = useCallback(() => {
+    cancelado.current = true;
     aoParar.current = null;
     const rec = gravador.current;
+    gravador.current = null;
     if (rec?.state === "recording") rec.stop();
-    else soltarRecursos();
+    soltarRecursos();
+    setPronta(null);
+    setEstado("parado");
+    setSegundos(0);
+    setNiveis([]);
   }, [soltarRecursos]);
 
-  return { estado, segundos, niveis, iniciar, terminar, cancelar };
+  return { estado, segundos, niveis, pronta, iniciar, parar, terminar, cancelar };
 }
 
 /** Reduz as medidas da gravação inteira a 64 barras de 0 a 100. */

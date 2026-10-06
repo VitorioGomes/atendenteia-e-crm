@@ -2796,6 +2796,26 @@ input.campo:hover {
   transition: transform 80ms linear;
 }
 
+/* Parar sem enviar (05/10/2026): o quadrado na tinta do texto, para nao sumir ao
+   lado do vermelho do apagar e do verde do enviar. */
+.parar-gravacao {
+  color: var(--tinta);
+}
+
+.parar-gravacao:disabled {
+  color: var(--tinta-fraca);
+}
+
+/* Gravacao parada: o mesmo player do balao, dentro da faixa do gravador. */
+.gravacao.revisando {
+  padding: 0 6px 0 4px;
+}
+
+.gravacao.revisando .player-audio {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Arquivos escolhidos, antes de enviar. */
 .anexos {
   list-style: none;
