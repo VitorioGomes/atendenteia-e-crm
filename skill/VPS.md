@@ -171,6 +171,23 @@ grep '^ANTHROPIC_API_KEY=' sistema/.env | ssh atendente-vps "cd /root/atendentei
 Não sugira trocar a chave por conta própria. Se ela já apareceu numa conversa antiga, a decisão de
 trocar é da pessoa.
 
+### Restaurar uma cópia de segurança
+
+A VPS faz uma cópia por noite, às 3h, e guarda as últimas sete. Liste para a pessoa escolher:
+
+```
+ssh atendente-vps "ls -1t /root/atendenteia-e-crm/sistema/backups/*.tar.gz"
+```
+
+Restaurar volta **tudo** para aquele momento, inclusive as conversas, e o que veio depois se
+perde. Por isso **quem confirma é a pessoa**: o `restaurar.sh` pede que ela digite `RESTAURAR`, e
+sem terminal (rodando por você) ele cancela sozinho. Entregue o comando para ela colar no terminal
+do VS Code:
+
+```
+ssh -t atendente-vps "cd /root/atendenteia-e-crm/sistema && bash restaurar.sh backups/<arquivo escolhido>"
+```
+
 ### Quando algo não funciona
 
 ```
