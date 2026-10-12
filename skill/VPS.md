@@ -188,6 +188,19 @@ do VS Code:
 ssh -t atendente-vps "cd /root/atendenteia-e-crm/sistema && bash restaurar.sh backups/<arquivo escolhido>"
 ```
 
+### O servidor foi reinstalado
+
+Se a pessoa reinstalou o sistema da VPS no painel do provedor, duas coisas mudam, e nenhuma é
+defeito:
+
+1. **A identidade do servidor é outra.** O `ssh` para com "REMOTE HOST IDENTIFICATION HAS CHANGED"
+   e "Host key verification failed". Confirme com ela que houve reinstalação; se houve, apague a
+   identidade antiga deste computador com `ssh-keygen -R <IP>` e siga. **Se ela não reinstalou
+   nada, não apague**: pare e diga que esse aviso, sem reinstalação, merece desconfiança.
+2. **A chave de acesso sumiu da VPS**, junto com o sistema e o atendente. A chave deste computador
+   e o nome de acesso continuam valendo: repita só o Passo 1b (o comando que a pessoa roda com a
+   senha do root nova) e depois o Passo 2 inteiro, a partir da pasta deste computador.
+
 ### Quando algo não funciona
 
 ```
