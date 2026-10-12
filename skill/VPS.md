@@ -5,7 +5,7 @@ Este roteiro é para quando o atendente **já funciona no computador** da pessoa
 computador está em [INSTALAR.md](INSTALAR.md); se ela ainda não foi feita, comece por lá.
 
 A ideia: você cria **uma chave de acesso** do computador para a VPS uma vez só. Daí em diante você
-entra na VPS sozinho, sem senha, e consegue mudar o sistema para lá, atualizar e ajustar o
+entra na VPS sozinho, sem senha, e consegue mudar o sistema para lá e ajustar o
 atendimento sempre que ela pedir.
 
 Antes de começar, ela precisa ter **uma VPS com Ubuntu 24.04 já comprada**, com o **IP** e a
@@ -18,7 +18,7 @@ Antes de começar, ela precisa ter **uma VPS com Ubuntu 24.04 já comprada**, co
 2. **Nunca mostre o conteúdo do `.env`**, nem daqui nem da VPS. Tem a chave da IA e a senha do CRM.
 3. **A pasta `sistema/negocio/` deste computador é a original.** Ajuste do atendimento se faz aqui
    e se envia para a VPS. Nunca edite direto na VPS: a próxima mudança feita aqui apagaria a de lá.
-4. Comando que demora (instalar, atualizar) pode levar uns 5 minutos. Avise antes e espere; não
+4. Comando que demora (instalar, remontar) pode levar uns 5 minutos. Avise antes e espere; não
    rode de novo achando que travou.
 5. Se a sua ferramenta bloquear um comando por permissão, entregue o comando pronto para a pessoa
    colar no terminal e diga o que ele faz em uma frase.
@@ -90,7 +90,7 @@ login do CRM e **a conexão do WhatsApp**, que não pede QR Code de novo.
    `ssh atendente-vps "git clone https://github.com/VitorioGomes/atendenteia-e-crm.git /root/atendenteia-e-crm"`
    (se responder que o `git` não existe: `ssh atendente-vps "apt-get update && apt-get install -y git"` e repita).
 5. **Ligue o caminho do código do computador até a VPS**, que é por onde vão as mudanças e as
-   atualizações daqui em diante (seção "Enviar o código para a VPS", abaixo). Se este computador
+   ajustes daqui em diante (seção "Enviar o código para a VPS", abaixo). Se este computador
    tem mudanças no sistema, elas vão agora, antes de instalar.
 6. Instale trazendo o pacote (demora uns 5 minutos):
    `ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && bash instalar.sh /root/<pacote>"`
@@ -130,12 +130,12 @@ painel do provedor tem um console de emergência que abre direto na VPS.
 - O endereço do CRM, para salvar no celular junto com o login.
 - Que **o computador não precisa mais ficar ligado**, e que ela **não deve ligar o sistema nele de
   novo** (os dois brigariam pelo mesmo WhatsApp; o `npm run pc` recusa sozinho).
-- Que para atualizar ou mudar qualquer coisa do atendimento, é só abrir você **nesta mesma pasta**
+- Que para mudar qualquer coisa, no atendimento ou no próprio sistema, é só abrir você **nesta mesma pasta**
   e pedir. Você entra na VPS sozinho.
 
 ---
 
-## Depois: atualizar e ajustar
+## Depois: mudar e ajustar
 
 Você sabe que o atendente mora na VPS quando `sistema/mudou-para-vps.txt` existe. A linha
 `Acesso:` diz o nome do acesso; os exemplos abaixo usam `atendente-vps`.
@@ -143,9 +143,9 @@ Você sabe que o atendente mora na VPS quando `sistema/mudou-para-vps.txt` exist
 ### O computador manda, a VPS só recebe
 
 **O código da VPS sai sempre deste computador.** As mudanças que a pessoa pede no sistema (uma cor,
-uma tela nova) e as atualizações oficiais se juntam aqui, no git desta pasta, e só então vão para a
-VPS. Nunca mexa no código direto na VPS, e não rode o `atualizar.sh` de lá quando o sistema tiver
-mudanças: ele recusa, porque baixaria a versão oficial por cima.
+uma tela nova) são feitas e guardadas aqui, no git desta pasta, e só então vão para a VPS. Nunca
+mexa no código direto na VPS: o próximo envio daqui apagaria. Não existe atualização do sistema
+depois de instalado (decisão do dono): quem instala de novo pega a versão nova.
 
 ### Enviar o código para a VPS
 
@@ -166,16 +166,6 @@ ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && bash aplicar.sh"
 O `aplicar.sh` faz uma cópia de segurança, remonta o sistema com o código que chegou e confere que
 ele voltou (uns 5 minutos). A configuração do negócio, o login e as conversas não são tocados.
 
-### Atualizar o sistema
-
-1. Guarde antes o que estiver mudado: `git add -A` e `git commit` com uma frase do que mudou.
-2. `git pull`. Se o git acusar conflito, é porque a atualização e uma mudança da pessoa mexeram no
-   mesmo lugar: junte as duas, mantendo o que ela pediu e o que a versão nova trouxe, e faça o
-   commit.
-3. Confira que compila: `npx tsc --noEmit` dentro de `sistema/`, e `npm run build` dentro de
-   `sistema/web/` se alguma tela mudou.
-4. Envie e aplique ("Enviar o código para a VPS").
-
 ### Mudar o sistema (cor, tela, o que a pessoa pedir)
 
 A pessoa pode pedir qualquer mudança no sistema. Faça **aqui**, nunca na VPS:
@@ -184,9 +174,11 @@ A pessoa pode pedir qualquer mudança no sistema. Faça **aqui**, nunca na VPS:
 2. **Mostre antes de enviar**, quando a mudança for visual: `npm run demo` dentro de
    `sistema/web/` abre o CRM com dados de exemplo em `http://localhost:5173`, sem WhatsApp e sem
    mexer no atendente da VPS. Feche com Ctrl+C depois que ela aprovar.
-3. Confira que compila (passo 3 de "Atualizar o sistema").
-4. Guarde com `git commit`, numa frase que diga o que mudou ("Lateral vermelha"). É o commit que
-   faz a mudança sobreviver às atualizações.
+3. Confira que compila: `npx tsc --noEmit` dentro de `sistema/`, e `npm run build` dentro de
+   `sistema/web/` se alguma tela mudou.
+4. Guarde com `git add -A` e `git commit`, numa frase que diga o que mudou ("Lateral vermelha").
+   É o commit que leva a mudança para a VPS, e ele deixa um histórico para desfazer o que não
+   ficar bom.
 5. Envie e aplique.
 
 ### Ajustar o atendimento

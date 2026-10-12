@@ -5,8 +5,7 @@
 #   bash aplicar.sh
 #
 # Quem chama e o computador da pessoa, depois de enviar o codigo para ca (git push): e assim
-# que chegam as mudancas que ela pediu (cor, tela nova) e as atualizacoes oficiais, ja
-# juntas no computador. Faz uma copia de seguranca antes. A pasta negocio/, o .env e os dados
+# que chegam as mudancas que ela pediu (cor, tela nova). Faz uma copia de seguranca antes. A pasta negocio/, o .env e os dados
 # nao sao tocados.
 
 set -euo pipefail

@@ -19,7 +19,8 @@ atendente seguindo o roteiro em skill/INSTALAR.md"*. Então você pode estar **f
 - **Não existe:** clone com `git clone https://github.com/VitorioGomes/atendenteia-e-crm.git`.
 - **O `git` não existe no computador** (erro "git não é reconhecido"): peça para a pessoa instalar
   em <https://git-scm.com>, aceitando tudo como vier, fechar o terminal, abrir de novo e chamar
-  você. Não baixe o projeto como zip para contornar: sem o `git`, ela não recebe atualização.
+  você. Não baixe o projeto como zip para contornar: sem o `git`, as mudanças que ela pedir depois não
+  chegam à VPS.
 - **A partir daqui, todo comando roda dentro de `atendenteia-e-crm`.** Se a sua ferramenta não
   guarda a pasta entre um comando e outro, entre nela em cada comando. Rodar `npm run pc` na pasta
   de cima dá o erro `Could not read package.json`.
@@ -27,7 +28,7 @@ atendente seguindo o roteiro em skill/INSTALAR.md"*. Então você pode estar **f
 ## Isto já foi instalado?
 
 **Se `sistema/mudou-para-vps.txt` existe, o atendente mora numa VPS.** Não ligue nada neste
-computador: siga a seção "Depois: atualizar e ajustar" de [VPS.md](VPS.md). E se a pessoa pedir
+computador: siga a seção "Depois: mudar e ajustar" de [VPS.md](VPS.md). E se a pessoa pedir
 para colocar na VPS, ou para ter o atendente 24 horas e o CRM no celular, o roteiro é o
 [VPS.md](VPS.md).
 
@@ -318,8 +319,8 @@ Feche dizendo, em poucas linhas:
 ## Mudar o sistema (depois de instalado)
 
 A pessoa pode pedir qualquer mudança: a cor da lateral, uma tela nova, um campo a mais. Faça, sem
-dizer que não pode. O cuidado é um só: **a mudança precisa sobreviver às atualizações**, e quem
-garante isso é o git desta pasta.
+dizer que não pode. O sistema não recebe atualizações depois de instalado (decisão do dono), então
+o código desta pasta é dela.
 
 1. Mude o código, seguindo o jeito que ele já está escrito (nomes em português, o mesmo estilo).
 2. Quando for visual, **mostre antes**: `npm run demo` dentro de `sistema/web/` abre o CRM com dados
@@ -328,12 +329,9 @@ garante isso é o git desta pasta.
    `sistema/web/` se alguma tela mudou.
 4. **Guarde com `git commit`**, numa frase que diga o que mudou. Se o git pedir nome e e-mail,
    configure só nesta pasta (`git config user.name "<nome dela>"` e `git config user.email
-   "<e-mail dela>"`). Sem o commit, a próxima atualização apaga a mudança ou trava.
+   "<e-mail dela>"`). O commit é o que leva a mudança para a VPS e deixa um
+   histórico para desfazer o que não ficar bom.
 5. **Onde o atendente mora decide o resto:**
    - no computador: pare o sistema com Ctrl+C e rode `npm run pc` de novo;
    - na VPS (`sistema/mudou-para-vps.txt` existe): envie e aplique, como em [VPS.md](VPS.md),
      "Enviar o código para a VPS".
-
-**Para atualizar depois**, `git pull` junta a versão nova com as mudanças dela. Se o git acusar
-conflito, as duas mexeram no mesmo lugar: junte, mantendo o que ela pediu e o que a versão nova
-trouxe.

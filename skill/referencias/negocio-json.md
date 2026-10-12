@@ -95,11 +95,10 @@ Lista vazia é resposta válida: desliga as etiquetas por completo.
 
 ### `regras` e `naoFaz`: só o que é deste negócio
 
-O jeito de conversar que vale para todo negócio **já está no sistema** e é atualizado quando a
-pessoa roda `git pull`: uma pergunta por vez, mensagens curtas, chamar pelo nome, não inventar
-preço nem prazo, avisar a equipe quando não souber, não discutir com quem provoca. **Não escreva
-nada disso aqui.** O que está no `negocio.json` fica congelado na máquina da pessoa: quando o
-sistema muda, a frase velha continua lá e briga com a nova. Foi o que aconteceu no teste de
+O jeito de conversar que vale para todo negócio **já está no sistema**: uma pergunta por vez,
+mensagens curtas, chamar pelo nome, não inventar preço nem prazo, avisar a equipe quando não
+souber, não discutir com quem provoca. **Não escreva nada disso aqui.** Repetir só duplica o que o
+sistema já faz, e uma frase genérica escrita de outro jeito briga com ele. Foi o que aconteceu no teste de
 04/10/2026: "se não souber, transfira" e "não dê desconto que não esteja no conhecimento" vieram de
 um exemplo copiado e fizeram o atendente responder o desconto sozinho.
 
