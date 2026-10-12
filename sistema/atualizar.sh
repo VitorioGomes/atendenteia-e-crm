@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 #
-# Atualiza o sistema na VPS para a versao mais nova do repositorio.
+# Atualiza o sistema na VPS direto do repositorio oficial e remonta.
 #
 #   bash atualizar.sh
 #
-# Faz uma copia de seguranca antes, baixa a versao nova, remonta e confere.
-# A pasta negocio/, o .env e os dados nao sao tocados: o git nao versiona nenhum deles.
+# So serve para quem nunca mudou o sistema pelo computador. Quem mudou (cor, tela nova)
+# atualiza pelo computador, que junta a versao nova com as mudancas e envia para ca
+# (skill/VPS.md, "Atualizar o sistema"). Nesse caso este script recusa, em vez de baixar por
+# cima.
 
 set -euo pipefail
 
@@ -15,17 +17,10 @@ morrer() { echo "${VERMELHO}[erro]${FIM} $1" >&2; [ $# -gt 1 ] && echo "       $
 
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-[ -f .env ] || morrer "Este sistema ainda nao foi instalado aqui." "Rode bash instalar.sh primeiro."
-
-SUDO=""
-[ "$(id -u)" -ne 0 ] && SUDO="sudo"
-
-bash backup.sh >/dev/null && ok "Copia de seguranca feita (pasta backups/)"
-
 ANTES="$(git rev-parse --short HEAD)"
 git pull --ff-only --quiet \
-  || morrer "Nao consegui baixar a versao nova." \
-            "Alguem mexeu nos arquivos do sistema nesta VPS. Rode 'git status' para ver o que foi."
+  || morrer "Este sistema tem mudancas feitas pelo computador, e a versao nova precisa ser juntada com elas." \
+            "Atualize pelo computador: peca a IA, na pasta do projeto, para atualizar o sistema."
 DEPOIS="$(git rev-parse --short HEAD)"
 
 if [ "$ANTES" = "$DEPOIS" ]; then
@@ -34,18 +29,4 @@ if [ "$ANTES" = "$DEPOIS" ]; then
 fi
 ok "Versao nova baixada ($ANTES -> $DEPOIS)"
 
-$SUDO docker compose build 2>&1 | tail -3
-$SUDO docker compose up -d
-$SUDO docker image prune -f >/dev/null 2>&1 || true
-
-for i in $(seq 1 60); do
-  if $SUDO docker compose exec -T app node -e "fetch('http://localhost:3000/saude').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" >/dev/null 2>&1; then
-    ok "Sistema no ar com a versao nova"
-    $SUDO docker compose exec -T app npm run doctor || true
-    exit 0
-  fi
-  sleep 2
-done
-
-morrer "O sistema nao voltou depois de atualizar." \
-       "Veja o erro com: docker compose logs --tail=60 app. Para voltar, restaure a copia de backups/ com bash restaurar.sh."
+exec bash aplicar.sh

@@ -42,6 +42,9 @@ Vá direto ao ponto: *"vi que o atendente já está configurado para a Clínica 
 você quer ajustar?"*. Depois de mudar, avise que ela precisa parar o sistema com Ctrl+C e rodar
 `npm run pc` de novo, porque a configuração é lida ao ligar.
 
+Se ela pedir uma mudança no próprio sistema (uma cor, uma tela, um botão), faça: veja "Mudar o
+sistema", no fim deste roteiro.
+
 ---
 
 ## O que você vai entregar
@@ -63,8 +66,9 @@ Depois você liga o sistema e confere que ele responde.
 
 ## Regras que não se quebram
 
-1. **Nunca mexa em nada fora de `sistema/negocio/`.** O resto do sistema é fixo e testado. Se
-   algo parecer faltar no sistema, isso é assunto para o suporte, não para você consertar.
+1. **Na instalação, não mexa em nada fora de `sistema/negocio/`.** O sistema já está pronto e
+   testado; instalar é configurar. **Depois de instalado, a pessoa pode pedir qualquer mudança no
+   sistema** (cor, tela nova): veja "Mudar o sistema", no fim deste roteiro.
 2. **Nunca invente dado do negócio.** Preço, horário, endereço, convênio: ou a pessoa disse, ou
    está num material que ela te deu e **ela confirmou**, ou não entra. Um preço errado no
    `conhecimento.md` faz o atendente mentir para o cliente dela todo dia.
@@ -308,3 +312,28 @@ Feche dizendo, em poucas linhas:
   de novo nesta pasta e pedir;
 - onde fica o CRM no celular: **não fica** — é nesse computador, e a VPS é o caminho de quem
   quer no celular e 24 horas no ar. Quando ela quiser, é só pedir para você "colocar na VPS".
+
+---
+
+## Mudar o sistema (depois de instalado)
+
+A pessoa pode pedir qualquer mudança: a cor da lateral, uma tela nova, um campo a mais. Faça, sem
+dizer que não pode. O cuidado é um só: **a mudança precisa sobreviver às atualizações**, e quem
+garante isso é o git desta pasta.
+
+1. Mude o código, seguindo o jeito que ele já está escrito (nomes em português, o mesmo estilo).
+2. Quando for visual, **mostre antes**: `npm run demo` dentro de `sistema/web/` abre o CRM com dados
+   de exemplo em `http://localhost:5173`. Feche com Ctrl+C depois que ela aprovar.
+3. Confira que compila: `npx tsc --noEmit` dentro de `sistema/`, e `npm run build` dentro de
+   `sistema/web/` se alguma tela mudou.
+4. **Guarde com `git commit`**, numa frase que diga o que mudou. Se o git pedir nome e e-mail,
+   configure só nesta pasta (`git config user.name "<nome dela>"` e `git config user.email
+   "<e-mail dela>"`). Sem o commit, a próxima atualização apaga a mudança ou trava.
+5. **Onde o atendente mora decide o resto:**
+   - no computador: pare o sistema com Ctrl+C e rode `npm run pc` de novo;
+   - na VPS (`sistema/mudou-para-vps.txt` existe): envie e aplique, como em [VPS.md](VPS.md),
+     "Enviar o código para a VPS".
+
+**Para atualizar depois**, `git pull` junta a versão nova com as mudanças dela. Se o git acusar
+conflito, as duas mexeram no mesmo lugar: junte, mantendo o que ela pediu e o que a versão nova
+trouxe.

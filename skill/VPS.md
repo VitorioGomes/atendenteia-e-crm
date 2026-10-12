@@ -89,13 +89,16 @@ login do CRM e **a conexão do WhatsApp**, que não pede QR Code de novo.
 4. Baixe o sistema na VPS:
    `ssh atendente-vps "git clone https://github.com/VitorioGomes/atendenteia-e-crm.git /root/atendenteia-e-crm"`
    (se responder que o `git` não existe: `ssh atendente-vps "apt-get update && apt-get install -y git"` e repita).
-5. Instale trazendo o pacote (demora uns 5 minutos):
+5. **Ligue o caminho do código do computador até a VPS**, que é por onde vão as mudanças e as
+   atualizações daqui em diante (seção "Enviar o código para a VPS", abaixo). Se este computador
+   tem mudanças no sistema, elas vão agora, antes de instalar.
+6. Instale trazendo o pacote (demora uns 5 minutos):
    `ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && bash instalar.sh /root/<pacote>"`
    O instalador tira do pacote a chave da IA e o login; o endereço do CRM fica `<IP>.sslip.io`.
    Se ele parar dizendo que falta algum campo, o recado diz como passar o valor.
-6. Apague o pacote dos dois lados, porque ele tem a chave e a senha dentro:
+7. Apague o pacote dos dois lados, porque ele tem a chave e a senha dentro:
    `ssh atendente-vps "rm /root/<pacote>"` e apague `sistema/<pacote>` aqui.
-7. Anote o acesso no fim de `sistema/mudou-para-vps.txt` (o `npm run mudar` criou esse arquivo):
+8. Anote o acesso no fim de `sistema/mudou-para-vps.txt` (o `npm run mudar` criou esse arquivo):
    `Acesso: ssh atendente-vps` (ou o nome que você usou). É por ele que você vai saber, numa
    próxima conversa, que o atendente mora na VPS e como entrar nela.
 
@@ -137,15 +140,54 @@ painel do provedor tem um console de emergência que abre direto na VPS.
 Você sabe que o atendente mora na VPS quando `sistema/mudou-para-vps.txt` existe. A linha
 `Acesso:` diz o nome do acesso; os exemplos abaixo usam `atendente-vps`.
 
+### O computador manda, a VPS só recebe
+
+**O código da VPS sai sempre deste computador.** As mudanças que a pessoa pede no sistema (uma cor,
+uma tela nova) e as atualizações oficiais se juntam aqui, no git desta pasta, e só então vão para a
+VPS. Nunca mexa no código direto na VPS, e não rode o `atualizar.sh` de lá quando o sistema tiver
+mudanças: ele recusa, porque baixaria a versão oficial por cima.
+
+### Enviar o código para a VPS
+
+Uma vez só, se ainda não foi feito (`git remote` não lista `vps`):
+
+```
+ssh atendente-vps "git -C /root/atendenteia-e-crm config receive.denyCurrentBranch updateInstead"
+git remote add vps atendente-vps:/root/atendenteia-e-crm
+```
+
+Toda vez, depois de guardar as mudanças com `git commit`:
+
+```
+git push vps HEAD:main
+ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && bash aplicar.sh"
+```
+
+O `aplicar.sh` faz uma cópia de segurança, remonta o sistema com o código que chegou e confere que
+ele voltou (uns 5 minutos). A configuração do negócio, o login e as conversas não são tocados.
+
 ### Atualizar o sistema
 
-```
-git pull
-ssh atendente-vps "cd /root/atendenteia-e-crm/sistema && bash atualizar.sh"
-```
+1. Guarde antes o que estiver mudado: `git add -A` e `git commit` com uma frase do que mudou.
+2. `git pull`. Se o git acusar conflito, é porque a atualização e uma mudança da pessoa mexeram no
+   mesmo lugar: junte as duas, mantendo o que ela pediu e o que a versão nova trouxe, e faça o
+   commit.
+3. Confira que compila: `npx tsc --noEmit` dentro de `sistema/`, e `npm run build` dentro de
+   `sistema/web/` se alguma tela mudou.
+4. Envie e aplique ("Enviar o código para a VPS").
 
-O `git pull` daqui mantém este roteiro em dia. O `atualizar.sh` faz uma cópia de segurança, baixa a
-versão nova, remonta e confere. A configuração, o login e as conversas não são tocados.
+### Mudar o sistema (cor, tela, o que a pessoa pedir)
+
+A pessoa pode pedir qualquer mudança no sistema. Faça **aqui**, nunca na VPS:
+
+1. Mude o código, seguindo o jeito que ele já está escrito.
+2. **Mostre antes de enviar**, quando a mudança for visual: `npm run demo` dentro de
+   `sistema/web/` abre o CRM com dados de exemplo em `http://localhost:5173`, sem WhatsApp e sem
+   mexer no atendente da VPS. Feche com Ctrl+C depois que ela aprovar.
+3. Confira que compila (passo 3 de "Atualizar o sistema").
+4. Guarde com `git commit`, numa frase que diga o que mudou ("Lateral vermelha"). É o commit que
+   faz a mudança sobreviver às atualizações.
+5. Envie e aplique.
 
 ### Ajustar o atendimento
 
